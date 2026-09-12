@@ -1,0 +1,16 @@
+# .gitignore —— 告诉 git "哪些东西不要上传到 GitHub"
+# 每个写一行。带 / 结尾是"整个文件夹"，不带是"文件或同名文件夹"。
+
+# 编译出来的可执行程序，不应该上传（别人自己 make 就行）
+pcaptool
+
+# 编译过程中的临时/目标文件
+*.o
+*.obj
+
+# 各种 IDE 或系统生成的杂文件
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+.DS_Store
