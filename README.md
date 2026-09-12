@@ -67,3 +67,17 @@ pcaptool/
 ## License
 
 MIT
+
+## 使用说明
+
+```bash
+# 读取并分析一个 pcap 文件
+./pcaptool samples/sample.pcap
+
+# 自行生成新的测试文件
+python3 tools/make_sample.py
+```
+
+## 第三方
+
+- 本项目基于 [libpcap](https://www.tcpdump.org/) 抓包库。
