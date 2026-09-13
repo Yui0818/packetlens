@@ -47,6 +47,7 @@ int main(int argc, char *argv[]) {
      * 简单说，就是告诉大家这是以太网(Ethernet)还是别的。
      * 我们现在先拿到它，后面阶段会用上。 */
     int linktype = pcap_datalink(handle);
+    (void)linktype;   /* 本阶段还用不到它：显式忽略，避免编译器报"未使用变量"警告 */
 
     /* 两个指针：header 会指向"这个包的信息"（长度、时间），
      * packet 会指向"这个包的原始字节数据"。 */
