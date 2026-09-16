@@ -58,7 +58,10 @@ pcaptool/
 ├── src/
 │   └── main.c        # 主程序
 ├── tools/
-│   └── make_sample.py  # 生成测试用 pcap 文件
+│   ├── make_sample.py  # 生成测试用 pcap 文件
+│   └── make_doc.py     # 生成/更新学习笔记（输出到 docs/）
+├── docs/
+│   └── pcaptool学习笔记.docx    # 持续更新的逐步讲解文档
 ├── samples/          # 示例抓包文件
 ├── Makefile          # 编译脚本
 └── README.md
@@ -76,6 +79,9 @@ MIT
 
 # 自行生成新的测试文件
 python3 tools/make_sample.py
+
+# 生成/更新学习笔记文档（需要 python-docx）
+python3 tools/make_doc.py
 ```
 
 ## 第三方
