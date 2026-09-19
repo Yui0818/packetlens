@@ -50,10 +50,10 @@ def ipv4(payload: bytes, src: bytes, dst: bytes, proto: int, ident: int):
     return header + payload
 
 
-def tcp(payload: bytes, sport: int, dport: int, seq: int):
-    """构造一个 TCP 头 + payload。20 字节标准 TCP 头。"""
+def tcp(payload: bytes, sport: int, dport: int, seq: int, flags: int):
+    """构造一个 TCP 头 + payload。20 字节标准 TCP 头。
+    flags 是标志位：0x02=SYN, 0x12=SYN+ACK, 0x18=PSH+ACK（常见数据包）。"""
     data_offset = 5 << 4           # 首部 5 个字 = 20 字节
-    flags = 0x18                   # 0x18 = PSH+ACK (常用)
     window = 65535
     checksum = 0
     urg = 0
@@ -69,6 +69,14 @@ def udp(payload: bytes, sport: int, dport: int):
     length = 8 + len(payload)
     checksum = 0
     header = struct.pack(">HHHH", sport, dport, length, checksum)
+    return header + payload
+
+
+def icmp(payload: bytes, icmp_type: int, code: int, ident: int, seq: int):
+    """构造一个 ICMP 头 + payload（演示 ping 的请求/应答）。
+    type: 8=回显请求(ping), 0=回显应答(pong)。8 字节头。"""
+    checksum = 0
+    header = struct.pack(">BBHHH", icmp_type, code, checksum, ident, seq)
     return header + payload
 
 
@@ -97,14 +105,14 @@ def main():
 
     # --- 包1: TCP 三次握手的第一步 SYN (来包) ---
     syn = eth_frame(
-        ipv4(tcp(b"", sport=54321, dport=80, seq=100),
+        ipv4(tcp(b"", sport=54321, dport=80, seq=100, flags=0x02),
              src=ip_a, dst=ip_web, proto=6, ident=1),
         mac_a, mac_b, 0x0800)
     packets.append((ts, 100, syn))
 
     # --- 包2: 服务器回 SYN-ACK ---
     synack = eth_frame(
-        ipv4(tcp(b"", sport=80, dport=54321, seq=1000),
+        ipv4(tcp(b"", sport=80, dport=54321, seq=1000, flags=0x12),
              src=ip_web, dst=ip_a, proto=6, ident=2),
         mac_b, mac_a, 0x0800)
     packets.append((ts, 200, synack))
@@ -120,10 +128,25 @@ def main():
     # --- 包4: 再一个 TCP 数据包 (横幅携带内容) ---
     payload = b"GET /index.html HTTP/1.1\r\nHost: example.com\r\n\r\n"
     data_pkt = eth_frame(
-        ipv4(tcp(payload, sport=54321, dport=80, seq=200),
+        ipv4(tcp(payload, sport=54321, dport=80, seq=200, flags=0x18),
              src=ip_a, dst=ip_web, proto=6, ident=4),
         mac_a, mac_b, 0x0800)
     packets.append((ts, 400, data_pkt))
+
+    # --- 包5: ICMP ping 请求（回显请求 type=8） ---
+    ping_payload = b"abcdefghijklmnopqrstuvwabcdefghi"   # 32 字节，和 Windows ping 一样
+    ping = eth_frame(
+        ipv4(icmp(ping_payload, icmp_type=8, code=0, ident=1, seq=1),
+             src=ip_a, dst=ip_b, proto=1, ident=5),
+        mac_a, mac_b, 0x0800)
+    packets.append((ts, 500, ping))
+
+    # --- 包6: ICMP ping 应答（回显应答 type=0） ---
+    pong = eth_frame(
+        ipv4(icmp(ping_payload, icmp_type=0, code=0, ident=1, seq=1),
+             src=ip_b, dst=ip_a, proto=1, ident=6),
+        mac_b, mac_a, 0x0800)
+    packets.append((ts, 600, pong))
 
     write_pcap("samples/sample.pcap", packets)
 
