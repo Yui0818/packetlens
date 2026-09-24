@@ -5,6 +5,8 @@
  * 第三阶段（v0.3）：统计——按协议算流量占比、Top IP、Top 端口排名。
  *                  为此做了一次重构：先把解析结果整理成一个结构体（PacketInfo），
  *                  再分别交给"打印"和"统计"去用（而不是边解析边打印）。
+ * 第四阶段（v0.4）：过滤表达式——只显示关心的包（比如 tcp port 80）。
+ * 第五阶段（v0.5）：实时抓网卡（live 模式）——和读文件共用同一套解析管线。
  *
  * 这个程序是我们整个项目的起点，它做的事情：
  *   1. 打开一个 pcap 文件（pcap 是网络抓包的标准文件格式）
@@ -307,6 +309,13 @@ static long long tcp_pkts = 0,  tcp_bytes = 0;
 static long long udp_pkts = 0,  udp_bytes = 0;
 static long long icmp_pkts = 0, icmp_bytes = 0;
 
+/* 运行总账（离线读文件 / 在线抓网卡两个模式共用同一套）。 */
+static long long total = 0;                 /* 一共读/抓了多少个包 */
+static unsigned long long bytes = 0;        /* 这些包合起来多少字节 */
+static long long shown = 0;                 /* 其中显示出来的（通过过滤的） */
+static unsigned long long shown_bytes = 0;  /* 显示出来的包的字节数（统计只算这部分） */
+static long long filtered = 0;              /* 被过滤掉的包数 */
+
 /* 给某个 key 的次数 +1；表里没有这个 key 就先插入一行。 */
 static void counter_add(CounterTable *t, unsigned int key) {
     int i;
@@ -485,6 +494,36 @@ static int filter_match(const PacketInfo *info) {
     return 1;
 }
 
+/* 处理一个包：编号 → 解析 → 过滤 → 打印 → 统计。
+ * 离线读文件和在线抓网卡都调用这一段，保证两个模式行为完全一致。 */
+static void handle_packet(const struct pcap_pkthdr *header, const unsigned char *packet) {
+    total++;
+    bytes += header->len;
+
+    /* 解析 → 过滤 → 打印 → 统计（流水线）。
+     * info = {0} 是"先全部清零"：保证每个字段都有确定的值，
+     * 不会出现"没解析到就读到垃圾"的情况（编译器也因此不再报警告）。 */
+    PacketInfo info = {0};
+    int ok = parse_packet(packet, header->len, &info);
+
+    if (ok && filter_match(&info)) {
+        /* 只有"通过过滤"的包才打印。header->ts 是时间戳：
+         * tv_sec 是"秒"，tv_usec 是"微秒"。编号用的是"读入的序号"，
+         * 所以有过滤时编号会跳号——这正是过滤在起作用。 */
+        printf("#%lld  时间=%lu.%06lu  长度=%u\n",
+               total,
+               (unsigned long)header->ts.tv_sec,
+               (unsigned long)header->ts.tv_usec,
+               header->len);
+        print_packet(&info);
+        stats_update(&info, header->len);
+        shown++;
+        shown_bytes += header->len;
+    } else {
+        filtered++;
+    }
+}
+
 /* main 是程序的入口。argc 是"命令行参数的个数"，argv 是"这些参数的内容"。
  * 比如运行  ./pcaptool xxx.pcap 时：
  *   argc = 2
@@ -496,90 +535,122 @@ int main(int argc, char *argv[]) {
      * fprintf(stderr, ...) 是"打印到错误输出"，临时错误信息都用它。 */
     if (argc < 2) {
         fprintf(stderr, "用法: %s <pcap文件> [过滤表达式]\n", argv[0]);
+        fprintf(stderr, "      %s live [网卡名] [数量] [过滤表达式]\n", argv[0]);
         fprintf(stderr, "过滤表达式示例: tcp / udp / icmp / port 80 / tcp port 80 / host 192.168.1.1\n");
         return 1;   /* 返回非 0 表示程序"失败退出了" */
     }
 
-    /* v0.4：把第 2 个参数开始的内容当作过滤表达式解析（不写就是不限）。 */
-    if (!parse_filter_args(argc, argv, 2)) {
+    /* v0.5：第一个参数是 "live" 就走"实时抓网卡"模式，否则按"读 pcap 文件"处理。 */
+    int live_mode = strcmp(argv[1], "live") == 0;
+
+    /* 过滤表达式在命令行里的位置：
+     *   离线模式：./pcaptool 文件.pcap [过滤...]          → 从 argv[2] 开始
+     *   在线模式：./pcaptool live [网卡] [数量] [过滤...] → 网卡、数量占了两个位置
+     * 判断"数量"的小技巧：atoi 对 "tcp" 这样的文字会返回 0，
+     * 所以"能转成正数"就说明用户写的是数量。 */
+    int filter_start = 2;
+    int live_count = 20;      /* 实时模式最多抓多少个包 */
+    if (live_mode) {
+        filter_start = 3;
+        if (argc > 3 && atoi(argv[3]) > 0) {
+            live_count = atoi(argv[3]);
+            filter_start = 4;
+        }
+    }
+    if (!parse_filter_args(argc, argv, filter_start)) {
         fprintf(stderr, "过滤表达式看不懂。支持的写法示例: tcp / udp / icmp / port 80 / tcp port 80 / host 192.168.1.1\n");
         return 1;
     }
 
     /* PCAP_ERRBUF_SIZE 是 libpcap 定义好的，一个错误信息缓冲区的固定大小。
-     * errbuf 用来存放"万一打开文件失败了，错误原因是什么"。 */
+     * errbuf 用来存放"万一打开失败了，错误原因是什么"。 */
     char errbuf[PCAP_ERRBUF_SIZE];
-
-    /* pcap_open_offline：打开一个"离线"的 pcap 文件（而不是去抓活动的网卡）。
-     * 返回一个 pcap_t*（可以理解成"这个文件的句柄"）。
-     * 如果打不开，返回 NULL，并把原因写到 errbuf 里。 */
-    pcap_t *handle = pcap_open_offline(argv[1], errbuf);
-    if (handle == NULL) {
-        fprintf(stderr, "打不开文件 %s : %s\n", argv[1], errbuf);
-        return 1;
-    }
-
-    /* pcap_datalink：返回这个文件的"链路层协议类型"。
-     * 简单说，就是告诉大家这是以太网(Ethernet)还是别的。
-     * v0.1 里先把它存着；v0.2 起它派上用场——用来提醒"这个文件不是以太网格式的话，
-     * 解析结果可能不准"。DLT_EN10MB 是 libpcap 定义的"以太网"常量（值为 1）。 */
-    int linktype = pcap_datalink(handle);
-    if (linktype != DLT_EN10MB) {
-        fprintf(stderr, "警告：该文件的链路层类型不是以太网（%d），解析结果可能不准。\n", linktype);
-    }
 
     /* 两个指针：header 会指向"这个包的信息"（长度、时间），
      * packet 会指向"这个包的原始字节数据"。 */
     struct pcap_pkthdr *header;
     const u_char *packet;
 
-    /* 统计用的累加变量。 */
-    long long total = 0;                 /* 一共读了多少个包 */
-    unsigned long long bytes = 0;        /* 这些包合起来多少字节 */
-    long long shown = 0;                 /* 其中显示出来的（通过过滤的） */
-    unsigned long long shown_bytes = 0;  /* 显示出来的包的字节数（统计只算这部分） */
-    long long filtered = 0;              /* 被过滤掉的包数 */
+    pcap_t *handle;
 
-    /* while(1) 是"永远循环"，要靠里面的 break 来跳出。 */
-    while (1) {
-        /* pcap_next_ex：读"下一个"包。
-         * 返回值有三种：
-         *   1   = 成功读到一个包
-         *   -1  = 出错
-         *   -2  = 文件到末尾了（读完啦） */
-        int ret = pcap_next_ex(handle, &header, &packet);
-        if (ret == 1) {
-            total++;
-            bytes += header->len;   /* header->len 是这个包的长度 */
+    if (live_mode) {
+        /* ===== v0.5：实时抓网卡 ===== */
 
-            /* 解析 → 过滤 → 打印 → 统计（流水线）。
-             * info = {0} 是"先全部清零"：保证每个字段都有确定的值，
-             * 不会出现"没解析到就读到垃圾"的情况（编译器也因此不再报警告）。 */
-            PacketInfo info = {0};
-            int ok = parse_packet(packet, header->len, &info);
+        /* 不写网卡名就默认 "any"（监听所有网卡；也可以指定 eth0、lo 等）。 */
+        const char *dev = (argc > 2) ? argv[2] : "any";
 
-            if (ok && filter_match(&info)) {
-                /* 只有"通过过滤"的包才打印。header->ts 是时间戳：
-                 * tv_sec 是"秒"，tv_usec 是"微秒"。编号用的是"读入的序号"，
-                 * 所以有过滤时编号会跳号——这正是过滤在起作用。 */
-                printf("#%lld  时间=%lu.%06lu  长度=%u\n",
-                       total,
-                       (unsigned long)header->ts.tv_sec,
-                       (unsigned long)header->ts.tv_usec,
-                       header->len);
-                print_packet(&info);
-                stats_update(&info, header->len);
-                shown++;
-                shown_bytes += header->len;
+        /* pcap_open_live：实时抓包的"开幕"。四个参数：
+         *   dev     网卡名
+         *   65535   每个包最多抓多少字节（够装下整个包）
+         *   1       混杂模式：连"不是发给本机"的包也抓（交换机"旁听"）
+         *   1000    超时（毫秒）：没包最多等 1 秒就返回，程序好继续干活 */
+        handle = pcap_open_live(dev, 65535, 1, 1000, errbuf);
+        if (handle == NULL) {
+            fprintf(stderr, "打不开网卡 %s : %s\n", dev, errbuf);
+            return 1;
+        }
+        if (pcap_datalink(handle) != DLT_EN10MB) {
+            fprintf(stderr, "警告：该网卡链路层不是以太网格式（%d），解析可能不准（可以换成 eth0 这类网口试试）。\n",
+                    pcap_datalink(handle));
+        }
+
+        printf("正在监听 %s ...（最多抓 %d 个包，想提前停就按 Ctrl+C）\n", dev, live_count);
+
+        int got = 0;
+        while (got < live_count) {
+            /* 在线模式的 pcap_next_ex 多了一种返回值：
+             *   0 = 这段时间没等到包（超时），继续等就行。 */
+            int ret = pcap_next_ex(handle, &header, &packet);
+            if (ret == 1) {
+                handle_packet(header, packet);
+                got++;
+            } else if (ret == 0) {
+                continue;
             } else {
-                filtered++;
+                fprintf(stderr, "抓包出错。\n");
+                break;
             }
-        } else if (ret == -1) {
-            fprintf(stderr, "读包出错。\n");
-            break;
-        } else if (ret == -2) {
-            printf("--- 文件读取完毕 ---\n");
-            break;
+        }
+        printf("--- 抓包停止（已抓 %d 个）---\n", got);
+
+    } else {
+        /* ===== 离线模式：读一个 pcap 文件 ===== */
+
+        /* pcap_open_offline：打开一个"离线"的 pcap 文件（而不是去抓活动的网卡）。
+         * 返回一个 pcap_t*（可以理解成"这个文件的句柄"）。
+         * 如果打不开，返回 NULL，并把原因写到 errbuf 里。 */
+        handle = pcap_open_offline(argv[1], errbuf);
+        if (handle == NULL) {
+            fprintf(stderr, "打不开文件 %s : %s\n", argv[1], errbuf);
+            return 1;
+        }
+
+        /* pcap_datalink：返回这个文件的"链路层协议类型"。
+         * 简单说，就是告诉大家这是以太网(Ethernet)还是别的。
+         * v0.1 里先把它存着；v0.2 起它派上用场——用来提醒"这个文件不是以太网格式的话，
+         * 解析结果可能不准"。DLT_EN10MB 是 libpcap 定义的"以太网"常量（值为 1）。 */
+        int linktype = pcap_datalink(handle);
+        if (linktype != DLT_EN10MB) {
+            fprintf(stderr, "警告：该文件的链路层类型不是以太网（%d），解析结果可能不准。\n", linktype);
+        }
+
+        /* while(1) 是"永远循环"，要靠里面的 break 来跳出。 */
+        while (1) {
+            /* pcap_next_ex：读"下一个"包。
+             * 返回值有三种（离线模式）：
+             *   1   = 成功读到一个包
+             *   -1  = 出错
+             *   -2  = 文件到末尾了（读完啦） */
+            int ret = pcap_next_ex(handle, &header, &packet);
+            if (ret == 1) {
+                handle_packet(header, packet);
+            } else if (ret == -1) {
+                fprintf(stderr, "读包出错。\n");
+                break;
+            } else if (ret == -2) {
+                printf("--- 文件读取完毕 ---\n");
+                break;
+            }
         }
     }
 
