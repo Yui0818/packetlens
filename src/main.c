@@ -7,6 +7,7 @@
  *                  再分别交给"打印"和"统计"去用（而不是边解析边打印）。
  * 第四阶段（v0.4）：过滤表达式——只显示关心的包（比如 tcp port 80）。
  * 第五阶段（v0.5）：实时抓网卡（live 模式）——和读文件共用同一套解析管线。
+ * 第六阶段（v0.6）：导出分析报告（--report 文件名）——同一份统计写到文件。
  *
  * 这个程序是我们整个项目的起点，它做的事情：
  *   1. 打开一个 pcap 文件（pcap 是网络抓包的标准文件格式）
@@ -61,11 +62,11 @@ static unsigned int ip_to_key(const unsigned char *a) {
            ((unsigned int)a[2] << 8)  | a[3];
 }
 
-/* 反过来：把一个数字"钥匙"还原成 IP 打印出来。
+/* 反过来：把一个数字"钥匙"还原成 IP 打印出来（写去哪由 out 决定，屏幕/文件都行）。
  * >> 24 是"往右挪 24 位"，& 0xFF 是"只取最低 8 位"，这样一段一段取出来。 */
-static void print_ip_from_key(unsigned int key) {
-    printf("%u.%u.%u.%u",
-           (key >> 24) & 0xFF, (key >> 16) & 0xFF, (key >> 8) & 0xFF, key & 0xFF);
+static void print_ip_from_key(FILE *out, unsigned int key) {
+    fprintf(out, "%u.%u.%u.%u",
+            (key >> 24) & 0xFF, (key >> 16) & 0xFF, (key >> 8) & 0xFF, key & 0xFF);
 }
 
 /* 把 IPv4 头里的"协议号"翻译成名字。 */
@@ -378,45 +379,65 @@ static void stats_update(const PacketInfo *info, unsigned int full_len) {
     }
 }
 
-/* 打印统计报告。
+/* 输出统计报告。写去哪由 out 决定——屏幕（stdout）或报告文件都走这一份逻辑。
  * 注意 "100.0 *" 里的 .0：如果写成 100 * bytes / total，C 语言会做"整数除法"，
  * 小数部分全被丢掉（比如 0.479 会变成 0）；写成 100.0 就会变成小数运算。 */
-static void print_stats(unsigned long long total_bytes) {
+static void emit_stats(FILE *out, unsigned long long total_bytes) {
     if (total_bytes == 0) {
         return;
     }
 
-    printf("\n====== 协议统计 ======\n");
+    fprintf(out, "\n====== 协议统计 ======\n");
     if (tcp_pkts > 0)
-        printf("TCP      %lld 个包   %lld 字节（%.1f%%）\n",
-               tcp_pkts, tcp_bytes, 100.0 * tcp_bytes / total_bytes);
+        fprintf(out, "TCP      %lld 个包   %lld 字节（%.1f%%）\n",
+                tcp_pkts, tcp_bytes, 100.0 * tcp_bytes / total_bytes);
     if (udp_pkts > 0)
-        printf("UDP      %lld 个包   %lld 字节（%.1f%%）\n",
-               udp_pkts, udp_bytes, 100.0 * udp_bytes / total_bytes);
+        fprintf(out, "UDP      %lld 个包   %lld 字节（%.1f%%）\n",
+                udp_pkts, udp_bytes, 100.0 * udp_bytes / total_bytes);
     if (icmp_pkts > 0)
-        printf("ICMP     %lld 个包   %lld 字节（%.1f%%）\n",
-               icmp_pkts, icmp_bytes, 100.0 * icmp_bytes / total_bytes);
+        fprintf(out, "ICMP     %lld 个包   %lld 字节（%.1f%%）\n",
+                icmp_pkts, icmp_bytes, 100.0 * icmp_bytes / total_bytes);
 
     if (ip_table.n > 0) {
-        printf("\n====== Top IP（收发都算）======\n");
+        fprintf(out, "\n====== Top IP（收发都算）======\n");
         counter_sort(&ip_table);
         int limit = ip_table.n < 5 ? ip_table.n : 5;   /* 最多显示前 5 名 */
         int i;
         for (i = 0; i < limit; i++) {
-            print_ip_from_key(ip_table.items[i].key);
-            printf("    %lld 次\n", ip_table.items[i].count);
+            print_ip_from_key(out, ip_table.items[i].key);
+            fprintf(out, "    %lld 次\n", ip_table.items[i].count);
         }
     }
 
     if (port_table.n > 0) {
-        printf("\n====== Top 端口（收发都算）======\n");
+        fprintf(out, "\n====== Top 端口（收发都算）======\n");
         counter_sort(&port_table);
         int limit = port_table.n < 5 ? port_table.n : 5;
         int i;
         for (i = 0; i < limit; i++) {
-            printf("%u     %lld 次\n", port_table.items[i].key, port_table.items[i].count);
+            fprintf(out, "%u     %lld 次\n", port_table.items[i].key, port_table.items[i].count);
         }
     }
+}
+
+/* v0.6：把这次分析的结果写成一份文本报告。
+ * fopen 的 "w" 表示"写文件"（没有就新建、有就覆盖）——和 printf 全家桶
+ * 是一个用法，只是"往哪写"从屏幕换成了文件；打开的东西用完必须 fclose。 */
+static void write_report(const char *path) {
+    FILE *f = fopen(path, "w");
+    if (f == NULL) {
+        fprintf(stderr, "报告文件打不开: %s\n", path);
+        return;
+    }
+    fprintf(f, "pcaptool 分析报告\n");
+    fprintf(f, "================\n\n");
+    fprintf(f, "共 %lld 个包，总流量 %llu 字节\n", total, bytes);
+    if (filtered > 0) {
+        fprintf(f, "已过滤掉 %lld 个包（统计只算显示的 %lld 个）\n", filtered, shown);
+    }
+    emit_stats(f, shown_bytes);
+    fclose(f);
+    printf("报告已写入: %s\n", path);
 }
 
 /* ============================================================
@@ -434,6 +455,9 @@ typedef struct {
 
 static Filter filter;          /* 全局一份，默认全是"不限" */
 
+/* v0.6：命令行 --report 指定的报告文件名（NULL = 不写报告）。 */
+static const char *report_file = NULL;
+
 /* 把字符串 "192.168.1.1" 解析成 4 个字节。
  * sscanf 是"从字符串里按格式抠数字"的利器：%u 表示"抠一个无符号整数"。 */
 static int parse_ip(const char *s, unsigned char *out) {
@@ -447,8 +471,9 @@ static int parse_ip(const char *s, unsigned char *out) {
     return 1;
 }
 
-/* 解析命令行的过滤参数（从第 start 个参数开始）。
- * 支持：tcp / udp / icmp；port 80；host 192.168.1.1；也可以组合，如 "tcp port 80"。
+/* 解析命令行的附加参数（从第 start 个参数开始）。
+ * 支持：tcp / udp / icmp；port 80；host 192.168.1.1；--report 文件名；
+ * 也可以组合，如 "tcp port 80"。
  * 返回 1 = 解析成功，0 = 有看不懂的词。 */
 static int parse_filter_args(int argc, char *argv[], int start) {
     int i;
@@ -468,6 +493,9 @@ static int parse_filter_args(int argc, char *argv[], int start) {
             if (++i >= argc) return 0;      /* "host" 后面必须跟 IP */
             if (!parse_ip(argv[i], filter.host)) return 0;
             filter.has_host = 1;
+        } else if (strcmp(a, "--report") == 0) {
+            if (++i >= argc) return 0;      /* "--report" 后面必须跟文件名 */
+            report_file = argv[i];
         } else {
             return 0;                       /* 不认识的词 */
         }
@@ -534,8 +562,8 @@ int main(int argc, char *argv[]) {
     /* 如果用户一个文件参数都没给（argc < 2），先把用法告诉他，然后退出。
      * fprintf(stderr, ...) 是"打印到错误输出"，临时错误信息都用它。 */
     if (argc < 2) {
-        fprintf(stderr, "用法: %s <pcap文件> [过滤表达式]\n", argv[0]);
-        fprintf(stderr, "      %s live [网卡名] [数量] [过滤表达式]\n", argv[0]);
+        fprintf(stderr, "用法: %s <pcap文件> [过滤表达式] [--report 文件名]\n", argv[0]);
+        fprintf(stderr, "      %s live [网卡名] [数量] [过滤表达式] [--report 文件名]\n", argv[0]);
         fprintf(stderr, "过滤表达式示例: tcp / udp / icmp / port 80 / tcp port 80 / host 192.168.1.1\n");
         return 1;   /* 返回非 0 表示程序"失败退出了" */
     }
@@ -663,7 +691,12 @@ int main(int argc, char *argv[]) {
     }
 
     /* v0.3：统计报告（协议占比 + Top IP + Top 端口）。 */
-    print_stats(shown_bytes);
+    emit_stats(stdout, shown_bytes);
+
+    /* v0.6：命令行给了 --report 的话，把同样的结果写一份到文件。 */
+    if (report_file != NULL) {
+        write_report(report_file);
+    }
 
     /* 用完一定要关掉文件，释放资源。 */
     pcap_close(handle);
