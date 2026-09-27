@@ -37,18 +37,34 @@ $ ./pcaptool samples/sample.pcap
     ICMP    类型=0（回显应答 / ping 回复）  代码=0
 --- 文件读取完毕 ---
 共 6 个包，总流量 436 字节
+
+====== 协议统计 ======
+TCP      3 个包   209 字节（47.9%）
+UDP      1 个包   79 字节（18.1%）
+ICMP     2 个包   148 字节（33.9%）
+
+====== Top IP（收发都算）======
+192.168.1.109    6 次
+93.184.216.34    4 次
+192.168.1.1    2 次
+
+====== Top 端口（收发都算）======
+54321     3 次
+80     3 次
+53     1 次
+50000     1 次
 ```
 
-## 功能（持续开发中）
+## 功能
 
 - [x] 读取 `.pcap` 文件
 - [x] 遍历并打印每个包的长度 / 时间戳
-- [x] 解析以太网 / IPv4 / TCP / UDP / ICMP 头（v0.2）
-- [ ] 按协议统计流量占比
-- [ ] 过滤表达式（如 `tcp port 80`）
-- [ ] Top IP / Top 端口 排名
-- [ ] 实时网卡抓包
-- [ ] 导出报告
+- [x] 解析以太网 / IPv4 / TCP / UDP / ICMP 头
+- [x] 按协议统计流量占比
+- [x] 过滤表达式（如 `tcp port 80`）
+- [x] Top IP / Top 端口 排名
+- [x] 实时网卡抓包
+- [x] 导出报告
 
 ## 为什么做这个
 
@@ -84,6 +100,9 @@ pcaptool/
 │   └── pcaptool学习笔记.docx    # 持续更新的逐步讲解文档
 ├── samples/          # 示例抓包文件
 ├── Makefile          # 编译脚本
+├── push.bat          # 一键提交+推送（双击即用）
+├── 更新文档.bat       # 一键更新学习笔记（双击即用）
+├── LICENSE           # MIT 开源协议
 └── README.md
 ```
 
@@ -97,12 +116,26 @@ MIT
 # 读取并分析一个 pcap 文件
 ./pcaptool samples/sample.pcap
 
+# 只看 TCP 80 端口的包（过滤：tcp / udp / icmp / port 80 / host 1.2.3.4，可组合）
+./pcaptool samples/sample.pcap tcp port 80
+
+# 实时抓网卡（抓 20 个包自动停；Linux 下要 sudo，Ctrl+C 可提前停）
+sudo ./pcaptool live eth0
+
+# 把分析结果导出成报告文件
+./pcaptool samples/sample.pcap --report 报告.txt
+
 # 自行生成新的测试文件
 python3 tools/make_sample.py
 
 # 生成/更新学习笔记文档（需要 python-docx）
 python3 tools/make_doc.py
 ```
+
+## 一键脚本（Windows 双击即用）
+
+- `push.bat` — 提交当前改动并推送到 GitHub（云端备份）
+- `更新文档.bat` — 重新生成 `docs/pcaptool学习笔记.docx` 并复制一份到桌面
 
 ## 第三方
 
