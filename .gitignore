@@ -14,3 +14,7 @@ pcaptool
 *.swp
 Thumbs.db
 .DS_Store
+
+# Python 运行时生成的缓存（自动生成，不用上传）
+__pycache__/
+*.pyc
