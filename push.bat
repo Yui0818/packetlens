@@ -37,11 +37,16 @@ if errorlevel 1 (
 )
 
 :push
-REM 5. 通过本机代理推送到 GitHub（保证能连上）
+REM 5. 先通过本机代理推送（通常更稳）；如果代理没开，自动改直连再试一次
 git -c http.proxy=http://127.0.0.1:7897 -c https.proxy=http://127.0.0.1:7897 push origin master
 if errorlevel 1 (
     echo.
-    echo "推送失败，请检查网络/代理。"
+    echo "代理推送没成功（可能代理没开），换直连再试一次……"
+    git push origin master
+)
+if errorlevel 1 (
+    echo.
+    echo "推送失败，请检查网络后再试。"
 ) else (
     echo.
     echo "===== 备份成功！代码已推送 GitHub：https://github.com/Yui0818/pcaptool ====="
