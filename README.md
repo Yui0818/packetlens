@@ -97,14 +97,17 @@ pcaptool/
 │   ├── make_sample.py  # 生成测试用 pcap 文件
 │   ├── make_doc.py     # 生成/更新学习笔记（输出到 docs/）
 │   ├── make_guide.py   # 生成《完全教程（小白版）》
-│   └── guide/          # 完全教程的各章节源码
+│   ├── make_manual.py  # 生成《逐行手册》
+│   ├── guide/          # 完全教程的各章节源码
+│   └── manual/         # 逐行手册的各章节源码
 ├── docs/
 │   ├── pcaptool学习笔记.docx    # 开发历程 + 每版代码讲解
-│   └── pcaptool完全教程.docx    # 小白版完全教程（9 章 + 4 附录）
+│   ├── pcaptool完全教程.docx    # 小白版完全教程（9 章 + 4 附录）
+│   └── pcaptool逐行手册.docx    # 操作步骤手册 + 859 条逐行代码讲解
 ├── samples/          # 示例抓包文件
 ├── Makefile          # 编译脚本
 ├── push.bat          # 一键提交+推送（双击即用）
-├── 更新文档.bat       # 一键更新两份文档（双击即用）
+├── 更新文档.bat       # 一键更新三份文档（双击即用）
 ├── LICENSE           # MIT 开源协议
 └── README.md
 ```
@@ -138,7 +141,7 @@ python3 tools/make_doc.py
 ## 一键脚本（Windows 双击即用）
 
 - `push.bat` — 提交当前改动并推送到 GitHub（云端备份）
-- `更新文档.bat` — 重新生成两份 Word 文档（学习笔记 + 完全教程）并复制到桌面
+- `更新文档.bat` — 重新生成三份 Word 文档（学习笔记 + 完全教程 + 逐行手册）并复制到桌面
 
 ## 第三方
 

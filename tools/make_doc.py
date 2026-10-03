@@ -13,63 +13,12 @@
 输出：docs/pcaptool学习笔记.docx
 """
 
-from docx import Document
-from docx.shared import Pt, RGBColor
-from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.oxml.ns import qn
+import os
+import sys
 
-# 创建一个空白文档
-doc = Document()
-
-# 设置一个好看的中文字体（正文微软雅黑）
-normal = doc.styles['Normal']
-normal.font.name = 'Microsoft YaHei'
-normal.font.size = Pt(11)
-normal.element.rPr.rFonts.set(qn('w:eastAsia'), 'Microsoft YaHei')
-
-
-# ---------- 工具函数 ----------
-def h1(text):
-    doc.add_heading(text, level=1)
-
-
-def h2(text):
-    doc.add_heading(text, level=2)
-
-
-def h3(text):
-    doc.add_heading(text, level=3)
-
-
-def para(text, bold=False):
-    p = doc.add_paragraph()
-    r = p.add_run(text)
-    r.bold = bold
-    return p
-
-
-def code(text):
-    """代码块：用等宽字体"""
-    p = doc.add_paragraph()
-    r = p.add_run(text)
-    r.font.name = 'Consolas'
-    r.font.size = Pt(10)
-    p.paragraph_format.space_before = Pt(4)
-    p.paragraph_format.space_after = Pt(4)
-    return p
-
-
-def bullet(text):
-    doc.add_paragraph(text, style='List Bullet')
-
-
-def note(text):
-    """提示框：灰色斜体"""
-    p = doc.add_paragraph()
-    r = p.add_run(text)
-    r.italic = True
-    r.font.color.rgb = RGBColor(0x60, 0x60, 0x60)
-    return p
+# 和《完全教程》《逐行手册》共用同一套排版工具箱
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'guide'))
+from docbuild import *   # noqa: F401,F403  （doc / h1 / h2 / h3 / para / code / bullet / note / save）
 
 
 # ============================================================
@@ -88,7 +37,7 @@ doc.add_page_break()
 # ============================================================
 # 目录
 # ============================================================
-h1('目录')
+h1('目录', new_page=False)
 for i, t in enumerate([
     '一、项目是什么',
     '二、开发环境与工具',
