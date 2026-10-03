@@ -202,6 +202,25 @@ def qa(q, a):
     doc.add_paragraph('A：' + a)
 
 
+def image(path, caption=None, width_cm=14.5, height_cm=None):
+    """插入一张配图（居中，可选灰色小字说明）。
+    width_cm / height_cm 二选一控制大小（竖长图用 height_cm）。"""
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    if height_cm is not None:
+        p.add_run().add_picture(path, height=Cm(height_cm))
+    else:
+        p.add_run().add_picture(path, width=Cm(width_cm))
+    if caption:
+        c = doc.add_paragraph()
+        c.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        r = c.add_run(caption)
+        r.italic = True
+        r.font.size = Pt(9.5)
+        r.font.color.rgb = C_GRAY
+    return p
+
+
 def save(path):
     """保存文档（自动建目录）。"""
     import os

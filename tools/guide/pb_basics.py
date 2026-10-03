@@ -104,6 +104,8 @@ bullet('路径互通的规律：Windows 的 D 盘在 WSL 里是 /mnt/d，所以�
 
 note('你电脑上的 WSL 已经装好了（Ubuntu 24.04），教程不再覆盖安装过程。如果哪天重装，记得给 WSL 配好网络——那是另一个话题了。')
 
+image('tools/assets/d07_wsl_path.png', '图 1-1：Windows 的 D:\\Projects\\pcaptool 和 WSL 的 /mnt/d/Projects/pcaptool 是同一批文件')
+
 h2('1.8 git 与 GitHub：代码的「时间机器 + 云端保险柜」')
 
 para('想象你写毕业论文：改到第 17 版，突然发现第 9 版的某段话更好，可惜被你覆盖了……代码写作天天面临同样的问题，于是有了 git。')

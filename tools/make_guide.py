@@ -31,7 +31,9 @@ import pj_usage      # 第 6 章  使用手册 + 急救箱
 import pk_github     # 第 7 章  GitHub 界面完全图解
 import pl_faq        # 第 8 章  FAQ
 import pm_next       # 第 9 章  下一步
+import po_design     # 第 10 章 设计决策集
 import pn_appendix   # 附录 A~D  速查手册
+import pp_appendix2  # 附录 E~F  练习 25 题 + 面试 25 问
 
 if __name__ == '__main__':
     out = os.path.abspath(os.path.join(HERE, '..', 'docs', 'pcaptool完全教程.docx'))

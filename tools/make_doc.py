@@ -282,6 +282,8 @@ code('typedef struct {\n    unsigned char mac_src[6], mac_dst[6];   /* 以太网
 para('has_ipv4、has_ports 是「有没有解析到这一层」的开关：开关没开，后面的字段就无意义。这种「开关 + 数据」的写法在解析场景里非常常见。')
 
 h2('9.3 计数器：数组 + 线性查找就够了')
+
+image('tools/assets/d09_sort.png', '图 9-1：选择排序的过程——每轮挑出最大的放到前面')
 para('「每个 IP 出现几次」要一张能按 key 累计的小表。最朴素的实现：小数组 + 线性查找——来一个 key 从头找一遍，有就次数 +1，没有就新增一行。数据量小的时候又快又简单。')
 code('typedef struct {\n    unsigned int key;      /* IP 压缩成的数字 / 端口号 */\n    long long    count;    /* 出现次数 */\n} Counter;')
 para('排 Top 榜用的是「选择排序」：每一轮从未排序的部分里挑出最大的放前面。写起来直观、数据少完全够用（数据多了要换成快排和哈希表——那是以后的优化话题）。')
@@ -305,6 +307,8 @@ para('真排查问题时，几百个包你只在意一小撮。加一个过滤�
 code('./pcaptool samples/sample.pcap tcp port 80      # 只看 TCP 且端口含 80 的\n./pcaptool samples/sample.pcap icmp              # 只看 ping\n./pcaptool samples/sample.pcap host 192.168.1.1  # 只看和某 IP 有关的')
 
 h2('10.1 条件存进一个小结构体')
+
+image('tools/assets/d10_filter.png', '图 10-1：过滤器就像三道闸门——任何一道说「不」，包就被跳过')
 code('typedef struct {\n    int proto;          /* 0 = 不限协议 */\n    int port;           /* 0 = 不限端口 */\n    int has_host;       /* 1 = 只看这个 IP */\n    unsigned char host[4];\n} Filter;')
 para('规则：不写 = 不限；写了就必须满足。匹配函数 filter_match 逐条检查——协议不对否掉、端口不含否掉、IP 对不上否掉，全过才显示。')
 

@@ -282,6 +282,8 @@ bullet('return 0：告诉操作系统「一切正常」。整个 main 到此结�
 h2('4.27 第 4 章总结：一张图记住整个程序')
 
 para('把全章串起来，main.c 的运行骨架就是这张图：')
+
+image('tools/assets/d06_pipeline.png', '图 4-1：main.c 的数据流水线——两种输入模式共用同一套处理')
 code('main 开始\n'
      '  ├─ 没参数？        → 打印用法，退出\n'
      '  ├─ 解析过滤条件    → parse_filter_args（内部用 strcmp / atoi / parse_ip）\n'

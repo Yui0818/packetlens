@@ -141,7 +141,7 @@ python3 tools/make_doc.py
 ## 一键脚本（Windows 双击即用）
 
 - `push.bat` — 提交当前改动并推送到 GitHub（云端备份）
-- `更新文档.bat` — 重新生成三份 Word 文档（学习笔记 + 完全教程 + 逐行手册）并复制到桌面
+- `更新文档.bat` — 重新生成三份 Word 文档并导出 PDF，全部收进桌面的「pcaptool文档」文件夹
 
 ## 第三方
 
