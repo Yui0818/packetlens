@@ -1,0 +1,4 @@
+# GitHub 会统计仓库里各语言的代码量，占比最高的那个会被标成"主语言"。
+# 这个仓库的主角是 src/main.c，tools/ 下的 Python 只是用来生成文档、
+# 造样例数据的辅助脚本，不该把语言条染成 Python，所以排除在统计之外。
+tools/**  linguist-detectable=false

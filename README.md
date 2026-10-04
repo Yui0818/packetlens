@@ -1,13 +1,12 @@
 # PacketLens（网镜）
 
-一个用 **C 语言** 写成的命令行网络抓包 / 分析工具（轻量版 tcpdump / Wireshark）。
+用 C 语言写的命令行网络抓包 / 分析工具，能读 pcap 文件、逐层拆协议头、做流量统计，也能实时抓网卡。
 
-> 学习 & 教学项目：从零开始，一行一行用 C 实现网络协议解析。
+说白了就是照 tcpdump / Wireshark 的思路自己重写一遍，没打算替代它们，主要想弄明白一个数据包从网卡到屏幕上，中间到底被拆成了几层。
 
 ## 这是什么
 
-`packetlens` 能读取网络抓包文件（`.pcap` 格式），逐个解析其中的网络数据包，
-并做统计。它基于业界通用抓包库 **libpcap**（Wireshark / tcpdump 底层同款）。
+`packetlens` 读取网络抓包文件（`.pcap` 格式），把里面的数据包逐个解析出来做统计。底层用的是 **libpcap**，也就是 Wireshark 和 tcpdump 用的同一个抓包库。
 
 ```
 $ ./packetlens samples/sample.pcap
@@ -68,13 +67,13 @@ ICMP     2 个包   148 字节（33.9%）
 
 ## 为什么做这个
 
-- **学习底层网络**：通过亲手解析二进制协议，理解网络每一层的工作方式。
-- **C 语言的实战**：位操作、内存管理、字节序、数据结构，是 C 的最佳训练场。
-- **解决真实问题**：网络工程师 / 开发者排查网络问题时，抓包工具是刚需。
+自学网络的时候看协议图总觉得懂了，真去写才发现每个字段的位置、字节序、校验和都得自己抠一遍才记得住。写这个项目就是为了逼自己把这层抠穿。
+
+另外它练的东西挺全：位操作、内存布局、字节序、结构体对齐、链表排序，全是 C 的硬功夫。写完顺手还能当简历项目。
 
 ## 构建
 
-依赖：Linux + GCC + libpcap 开发库。
+依赖：Linux + GCC + libpcap 开发库。（Windows 上用 WSL 就行，我就是在 WSL2 里开发的。）
 
 ```bash
 # Ubuntu / Debian
@@ -92,7 +91,7 @@ make
 ```
 packetlens/
 ├── src/
-│   └── main.c        # 主程序
+│   └── main.c        # 主程序，整个工具就在这一个文件里
 ├── tools/
 │   ├── make_sample.py  # 生成测试用 pcap 文件
 │   ├── make_doc.py     # 生成/更新学习笔记（输出到 docs/）
@@ -108,13 +107,12 @@ packetlens/
 ├── Makefile          # 编译脚本
 ├── push.bat          # 一键提交+推送（双击即用）
 ├── 更新文档.bat       # 一键更新三份文档（双击即用）
-├── LICENSE           # MIT 开源协议
+├── .gitattributes    # 让 GitHub 别把 tools/ 的 Python 算进语言统计
+├── LICENSE           # MIT
 └── README.md
 ```
 
-## License
-
-MIT
+那三份 Word 文档里的图和正文，也是项目里这几个 Python 脚本生成的，改完内容重跑一遍脚本就行。
 
 ## 使用说明
 
@@ -140,9 +138,11 @@ python3 tools/make_doc.py
 
 ## 一键脚本（Windows 双击即用）
 
-- `push.bat` — 提交当前改动并推送到 GitHub（云端备份）
-- `更新文档.bat` — 重新生成三份 Word 文档并导出 PDF，全部收进桌面的「packetlens文档」文件夹
+- `push.bat`：提交当前改动并推到 GitHub
+- `更新文档.bat`：重新生成三份 Word 并导出 PDF，收进桌面的「packetlens文档」文件夹
 
-## 第三方
+## 许可
 
-- 本项目基于 [libpcap](https://www.tcpdump.org/) 抓包库。
+MIT。
+
+抓包用的是 [libpcap](https://www.tcpdump.org/)，协议字段和 pcap 文件格式的说明都来自 tcpdump.org 的公开文档；解析那部分代码是自己写的。
