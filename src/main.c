@@ -1,5 +1,5 @@
 /*
- * pcaptool —— 命令行网络抓包分析工具
+ * PacketLens（网镜）—— 命令行网络抓包分析工具
  * 第一阶段（v0.1）：读取一个 pcap 文件，打印每个包的长度和时间戳。
  * 第二阶段（v0.2）：把每个包逐层"拆开"解析——以太网 → IPv4 → TCP/UDP/ICMP。
  * 第三阶段（v0.3）：统计——按协议算流量占比、Top IP、Top 端口排名。
@@ -429,7 +429,7 @@ static void write_report(const char *path) {
         fprintf(stderr, "报告文件打不开: %s\n", path);
         return;
     }
-    fprintf(f, "pcaptool 分析报告\n");
+    fprintf(f, "PacketLens 分析报告\n");
     fprintf(f, "================\n\n");
     fprintf(f, "共 %lld 个包，总流量 %llu 字节\n", total, bytes);
     if (filtered > 0) {
@@ -553,9 +553,9 @@ static void handle_packet(const struct pcap_pkthdr *header, const unsigned char 
 }
 
 /* main 是程序的入口。argc 是"命令行参数的个数"，argv 是"这些参数的内容"。
- * 比如运行  ./pcaptool xxx.pcap 时：
+ * 比如运行  ./packetlens xxx.pcap 时：
  *   argc = 2
- *   argv[0] = "./pcaptool"   （程序自己）
+ *   argv[0] = "./packetlens"   （程序自己）
  *   argv[1] = "xxx.pcap"     （第一个参数，即要分析的文件） */
 int main(int argc, char *argv[]) {
 
@@ -572,8 +572,8 @@ int main(int argc, char *argv[]) {
     int live_mode = strcmp(argv[1], "live") == 0;
 
     /* 过滤表达式在命令行里的位置：
-     *   离线模式：./pcaptool 文件.pcap [过滤...]          → 从 argv[2] 开始
-     *   在线模式：./pcaptool live [网卡] [数量] [过滤...] → 网卡、数量占了两个位置
+     *   离线模式：./packetlens 文件.pcap [过滤...]          → 从 argv[2] 开始
+     *   在线模式：./packetlens live [网卡] [数量] [过滤...] → 网卡、数量占了两个位置
      * 判断"数量"的小技巧：atoi 对 "tcp" 这样的文字会返回 0，
      * 所以"能转成正数"就说明用户写的是数量。 */
     int filter_start = 2;
