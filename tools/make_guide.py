@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-生成《pcaptool 完全教程（小白版）》
+生成《packetlens 完全教程（小白版）》
 ====================================
 运行：python3 tools/make_guide.py
-输出：docs/pcaptool完全教程.docx
+输出：docs/packetlens完全教程.docx
 
 各章节的内容在 tools/guide/ 文件夹下的 pa_*.py ~ pm_*.py 里，
 本脚本按顺序导入它们（导入即执行，把内容拼进同一个文档），最后保存。
@@ -36,5 +36,5 @@ import pn_appendix   # 附录 A~D  速查手册
 import pp_appendix2  # 附录 E~F  练习 25 题 + 面试 25 问
 
 if __name__ == '__main__':
-    out = os.path.abspath(os.path.join(HERE, '..', 'docs', 'pcaptool完全教程.docx'))
+    out = os.path.abspath(os.path.join(HERE, '..', 'docs', 'packetlens完全教程.docx'))
     docbuild.save(out)

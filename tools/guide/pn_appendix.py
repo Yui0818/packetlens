@@ -10,7 +10,7 @@ h1('附录 A  终端命令速查（20 个够用很久）')
 
 para('终端的命令就像快捷键：用得多就顺手。这 20 个覆盖日常 95% 的场景。每条给「一句话 + 例子」。')
 
-code('cd 文件夹       进入文件夹。cd /mnt/d/Projects/pcaptool\n'
+code('cd 文件夹       进入文件夹。cd /mnt/d/Projects/packetlens\n'
      'cd ..           回上一层。cd ..\n'
      'cd ~            回家目录（WSL 里是 /home/weltery）\n'
      'pwd             我现在在哪（print working directory）\n'
@@ -139,7 +139,7 @@ code('git log --oneline       # 一行一条看全部提交历史\n'
 
 h2('C.4 本项目第一次是怎么建起来的（历史存档）')
 code('git init                                          # 在项目文件夹里初始化仓库\n'
-     'gh repo create pcaptool --public --source=. --push  # 创建公开仓库并首次推送\n'
+     'gh repo create packetlens --public --source=. --push  # 创建公开仓库并首次推送\n'
      'git config user.name "Yui0818"                    # 设置提交身份\n'
      'git config user.email "324952380+Yui0818@users.noreply.github.com"\n'
      '# 之后每改一次：add → commit → push（push.bat 自动完成）')
@@ -157,7 +157,7 @@ para('给「想系统学一遍」的你一份周计划。每周 2~4 小时即可
 code('第 1 周  认识环境\n'
      '  读：第 1 章（电脑与编程基础）、第 6.1~6.3\n'
      '  做：WSL 里把项目跑起来，看到六个包的输出\n'
-     '  检查点：能说出「/mnt/d/Projects/pcaptool 是什么的地址」\n'
+     '  检查点：能说出「/mnt/d/Projects/packetlens 是什么的地址」\n'
      '\n'
      '第 2 周  玩透功能\n'
      '  读：第 2 章（网络基础）、第 3 章（项目全貌）\n'

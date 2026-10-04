@@ -1,4 +1,4 @@
-# pcaptool
+# PacketLens（网镜）
 
 一个用 **C 语言** 写成的命令行网络抓包 / 分析工具（轻量版 tcpdump / Wireshark）。
 
@@ -6,11 +6,11 @@
 
 ## 这是什么
 
-`pcaptool` 能读取网络抓包文件（`.pcap` 格式），逐个解析其中的网络数据包，
+`packetlens` 能读取网络抓包文件（`.pcap` 格式），逐个解析其中的网络数据包，
 并做统计。它基于业界通用抓包库 **libpcap**（Wireshark / tcpdump 底层同款）。
 
 ```
-$ ./pcaptool samples/sample.pcap
+$ ./packetlens samples/sample.pcap
 #1  时间=1700000000.000100  长度=54
     以太网  源=00:11:22:33:44:55  目的=aa:bb:cc:dd:ee:ff  类型=IPv4(0x0800)
     IPv4    源=192.168.1.109  目的=93.184.216.34  协议=TCP(6)  TTL=64
@@ -84,13 +84,13 @@ sudo apt install libpcap-dev
 make
 
 # 运行
-./pcaptool samples/sample.pcap
+./packetlens samples/sample.pcap
 ```
 
 ## 项目结构
 
 ```
-pcaptool/
+packetlens/
 ├── src/
 │   └── main.c        # 主程序
 ├── tools/
@@ -101,9 +101,9 @@ pcaptool/
 │   ├── guide/          # 完全教程的各章节源码
 │   └── manual/         # 逐行手册的各章节源码
 ├── docs/
-│   ├── pcaptool学习笔记.docx    # 开发历程 + 每版代码讲解
-│   ├── pcaptool完全教程.docx    # 小白版完全教程（9 章 + 4 附录）
-│   └── pcaptool逐行手册.docx    # 操作步骤手册 + 859 条逐行代码讲解
+│   ├── packetlens学习笔记.docx    # 开发历程 + 每版代码讲解
+│   ├── packetlens完全教程.docx    # 小白版完全教程（9 章 + 4 附录）
+│   └── packetlens逐行手册.docx    # 操作步骤手册 + 859 条逐行代码讲解
 ├── samples/          # 示例抓包文件
 ├── Makefile          # 编译脚本
 ├── push.bat          # 一键提交+推送（双击即用）
@@ -120,16 +120,16 @@ MIT
 
 ```bash
 # 读取并分析一个 pcap 文件
-./pcaptool samples/sample.pcap
+./packetlens samples/sample.pcap
 
 # 只看 TCP 80 端口的包（过滤：tcp / udp / icmp / port 80 / host 1.2.3.4，可组合）
-./pcaptool samples/sample.pcap tcp port 80
+./packetlens samples/sample.pcap tcp port 80
 
 # 实时抓网卡（抓 20 个包自动停；Linux 下要 sudo，Ctrl+C 可提前停）
-sudo ./pcaptool live eth0
+sudo ./packetlens live eth0
 
 # 把分析结果导出成报告文件
-./pcaptool samples/sample.pcap --report 报告.txt
+./packetlens samples/sample.pcap --report 报告.txt
 
 # 自行生成新的测试文件
 python3 tools/make_sample.py
@@ -141,7 +141,7 @@ python3 tools/make_doc.py
 ## 一键脚本（Windows 双击即用）
 
 - `push.bat` — 提交当前改动并推送到 GitHub（云端备份）
-- `更新文档.bat` — 重新生成三份 Word 文档并导出 PDF，全部收进桌面的「pcaptool文档」文件夹
+- `更新文档.bat` — 重新生成三份 Word 文档并导出 PDF，全部收进桌面的「packetlens文档」文件夹
 
 ## 第三方
 

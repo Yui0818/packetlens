@@ -153,7 +153,7 @@ code('int main(int argc, char *argv[]) {\n'
      '        return 1;\n'
      '    }')
 
-bullet('argc / argv 复习：运行 ./pcaptool a b 时，argc = 3（数一数：程序自己 + a + b），argv[0] = "./pcaptool"，argv[1] = "a"，argv[2] = "b"。')
+bullet('argc / argv 复习：运行 ./packetlens a b 时，argc = 3（数一数：程序自己 + a + b），argv[0] = "./packetlens"，argv[1] = "a"，argv[2] = "b"。')
 bullet('argc < 2 说明用户只敲了程序名——什么信息都没给，打印用法。用法里的 %s 填 argv[0]（程序名），所以不管你把程序改名成什么，提示都自动正确。')
 bullet('返回 1（非 0）表示「失败退出」——这是命令行程序的约定：0 = 成功，非 0 = 出错。')
 

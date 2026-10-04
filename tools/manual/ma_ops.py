@@ -36,17 +36,17 @@ note('Linux 有个和 Windows 相反的习惯：命令执行成功时「什么�
 h2('A3. 手把手：第一次把项目跑起来（第 1~6 步）')
 
 para('第 1 步：在终端里输入下面这一行（一字不差，注意全是正斜杠 /），按回车：')
-code('cd /mnt/d/Projects/pcaptool')
+code('cd /mnt/d/Projects/packetlens')
 para('预期：光标换到下一行，没有任何提示——这就是「成功进入项目文件夹」。（cd 是「切换目录」的意思；/mnt/d 就是 Windows 的 D 盘。）')
 
-para('第 2 步：输入 pwd 按回车。预期输出：/mnt/d/Projects/pcaptool ——它在向你确认「你现在确实在这个文件夹里」。')
+para('第 2 步：输入 pwd 按回车。预期输出：/mnt/d/Projects/packetlens ——它在向你确认「你现在确实在这个文件夹里」。')
 
-para('第 3 步：输入 ls 按回车。预期：屏幕列出：LICENSE  Makefile  README.md  docs  push.bat  samples  src  tools  更新文档.bat 等文件。这些就是你项目的全部家当。（pcaptool 这个文件可能还没有——它是编译产物，下一步生成。）')
+para('第 3 步：输入 ls 按回车。预期：屏幕列出：LICENSE  Makefile  README.md  docs  push.bat  samples  src  tools  更新文档.bat 等文件。这些就是你项目的全部家当。（packetlens 这个文件可能还没有——它是编译产物，下一步生成。）')
 
-para('第 4 步：输入 make 按回车。预期：先出现 rm -f pcaptool，再出现一行 gcc 开头的长命令，然后光标回来。这一瞬间电脑完成了「把 C 代码翻译成程序」的编译工作，生成了可执行文件 pcaptool。')
+para('第 4 步：输入 make 按回车。预期：先出现 rm -f packetlens，再出现一行 gcc 开头的长命令，然后光标回来。这一瞬间电脑完成了「把 C 代码翻译成程序」的编译工作，生成了可执行文件 packetlens。')
 
 para('第 5 步：输入下面这行，按回车：')
-code('./pcaptool samples/sample.pcap')
+code('./packetlens samples/sample.pcap')
 para('预期：屏幕滚出一段「拆解网络包」的输出——六个包，每个包下面有 以太网 / IPv4 / TCP 或 UDP 或 ICMP 的逐层信息，最后还有协议统计和 Top 排行榜。')
 para('恭喜——这是你这台电脑上第一次运行成功。如果报错了，去 A8 排查流程，或对照《完全教程》第 6.8 节急救箱。')
 
@@ -55,24 +55,24 @@ para('第 6 步（可选）：把窗口往上滚，随便挑一个包，试着�
 h2('A4. 手把手：把六个功能挨个玩一遍')
 
 h3('功能 1：完整分析（刚才玩过）')
-code('$ ./pcaptool samples/sample.pcap')
+code('$ ./packetlens samples/sample.pcap')
 para('看点：①每个包「#编号 时间 长度」那一行；②缩进的层级；③最下面的协议统计（哪个协议占多少）和 Top IP / Top 端口（谁最活跃）。')
 
 h3('功能 2：过滤——只看关心的包')
-code('$ ./pcaptool samples/sample.pcap tcp port 80    # 只看 TCP 80 端口\n'
-     '$ ./pcaptool samples/sample.pcap udp             # 只看 UDP\n'
-     '$ ./pcaptool samples/sample.pcap icmp            # 只看 ping\n'
-     '$ ./pcaptool samples/sample.pcap host 192.168.1.1  # 只看这个 IP 的往来')
+code('$ ./packetlens samples/sample.pcap tcp port 80    # 只看 TCP 80 端口\n'
+     '$ ./packetlens samples/sample.pcap udp             # 只看 UDP\n'
+     '$ ./packetlens samples/sample.pcap icmp            # 只看 ping\n'
+     '$ ./packetlens samples/sample.pcap host 192.168.1.1  # 只看这个 IP 的往来')
 para('看点：包编号会「跳号」（比如 #1 #2 #4）——跳过的那几个就是被过滤掉的；结尾还会有一行「已过滤掉 X 个包」，统计也只算显示出来的。')
 
 h3('功能 3：导出报告')
-code('$ ./pcaptool samples/sample.pcap --report 报告.txt')
+code('$ ./packetlens samples/sample.pcap --report 报告.txt')
 para('预期：除了屏幕输出，最后多一行「报告已写入: 报告.txt」。这个文件就在项目文件夹里。两种方式查看它：')
 bullet('在终端里输入 cat 报告.txt 回车——直接把文件内容打印出来。')
-bullet('在 Windows 资源管理器里打开 D:\\Projects\\pcaptool 文件夹，双击「报告.txt」用记事本打开。')
+bullet('在 Windows 资源管理器里打开 D:\\Projects\\packetlens 文件夹，双击「报告.txt」用记事本打开。')
 
 h3('功能 4：实时抓包（抓活的）')
-code('$ sudo ./pcaptool live lo 5')
+code('$ sudo ./packetlens live lo 5')
 para('预期：提示「正在监听 lo ...（最多抓 5 个包…）」，然后陆续打印抓到的包，抓满 5 个自动停。')
 bullet('sudo = 以管理员身份运行（抓包需要这个权限），输入后如果让你输密码，输开机密码（屏幕上不显示是正常的，打完直接回车）。')
 bullet('「没等到包、一直停在正在监听」怎么办：这很正常——说明这个网卡暂时没流量。按 Ctrl+C 退出；想看到内容，可以另开一个终端窗口输入 ping baidu.com，再回来抓。')
@@ -88,7 +88,7 @@ h2('A5. 手把手：改一行代码（VS Code 篇）')
 
 para('第 1 步：在终端里输入 code . 回车（code 后面有一个空格和一个点，点表示「当前文件夹」）。')
 para('预期：VS Code 编辑器弹出，左侧边栏列出项目文件名。')
-para('第 2 步：如果 code . 没反应（没装或没配 PATH）：点开始菜单，搜 Visual Studio Code 打开；然后 文件(File) → 打开文件夹(Open Folder) → 选择 D:\\Projects\\pcaptool。')
+para('第 2 步：如果 code . 没反应（没装或没配 PATH）：点开始菜单，搜 Visual Studio Code 打开；然后 文件(File) → 打开文件夹(Open Folder) → 选择 D:\\Projects\\packetlens。')
 para('第 3 步：在左边点开 src 文件夹，再点 main.c。文件打开了，左侧能看到行号。')
 para('第 4 步：滚动到第 276 行（可以利用 Ctrl+G 输入行号跳转），找到这一行：')
 code('printf("（回显请求 / ping）");')
@@ -96,7 +96,7 @@ para('第 5 步：把 回显请求 / ping 改成你想要的话，比如：')
 code('printf("（回显请求 / ping！这是我自己改的！）");')
 bullet('注意：两边的英文双引号 " 保留；括号用中文括号没关系；只动引号里的字。')
 para('第 6 步：按 Ctrl+S 保存（VS Code 里保存后文件名旁边的小圆点会消失）。')
-para('第 7 步：回到终端（点一下刚才的终端窗口），依次输入 make 回车、./pcaptool samples/sample.pcap 回车。')
+para('第 7 步：回到终端（点一下刚才的终端窗口），依次输入 make 回车、./packetlens samples/sample.pcap 回车。')
 para('预期：第 5 个包（ping 请求那个）的那行显示成你改过的话——你刚完成了一次真实的「修改源代码 → 重新编译 → 看到效果」循环！')
 para('第 8 步（练习防护）：改坏了想恢复原样，终端输入：')
 code('git checkout -- src/main.c')
@@ -104,22 +104,22 @@ para('这条命令让 git 把 main.c 恢复到最后一次提交时的样子（�
 
 h2('A6. 手把手：提交备份（双击 push.bat 篇）')
 
-para('第 1 步：按 Win 键 + E 打开资源管理器，地址栏输入 D:\\Projects\\pcaptool 回车——看到项目文件夹。')
+para('第 1 步：按 Win 键 + E 打开资源管理器，地址栏输入 D:\\Projects\\packetlens 回车——看到项目文件夹。')
 para('第 2 步：找到黑色的 push.bat 文件，双击它。预期：弹出一个黑色窗口，自动打印一串文字（那是 git 在干活）。')
 para('第 3 步：看到「请输入本次提交说明（直接回车用默认）:」——输入一句话说明你改了什么（例如：试了改一句打印），按回车。（直接回车也行，会用一个默认说明。）')
 para('第 4 步：预期最后出现「===== 备份成功！代码已推送 GitHub：...」。看到这行就成功了。按任意键关闭窗口。')
-para('第 5 步：打开浏览器访问 github.com/Yui0818/pcaptool/commits/master，刷新页面——最上面一条就是你刚提交的记录，点进去还能看到你改了哪一行（绿字）。')
+para('第 5 步：打开浏览器访问 github.com/Yui0818/packetlens/commits/master，刷新页面——最上面一条就是你刚提交的记录，点进去还能看到你改了哪一行（绿字）。')
 
 h2('A7. 手把手：更新文档（双击 更新文档.bat 篇）')
 
-para('第 1 步：回 D:\\Projects\\pcaptool 文件夹，双击 更新文档.bat。预期：黑窗口自动跑过两个 python 脚本的输出，最后显示「已更新 docs\\ 下两份文档（并复制到桌面）」。')
+para('第 1 步：回 D:\\Projects\\packetlens 文件夹，双击 更新文档.bat。预期：黑窗口自动跑过两个 python 脚本的输出，最后显示「已更新 docs\\ 下两份文档（并复制到桌面）」。')
 para('第 2 步：回到桌面，看到《学习笔记》和《完全教程》两份 Word 的修改时间变成刚刚——它们就是最新版了。')
 para('第 3 步：双击打开阅读。两个小技巧：按住 Ctrl 滚滚轮可以放大缩小字号；「视图」菜单里勾「导航窗格」会出现左侧目录，点击跳章节。')
 para('第 4 步（可选）：想生成 PDF 发给别人：Word 里 文件 → 另存为 → 格式选 PDF。')
 
 h2('A8. 卡住时的万能排查流程（按顺序做）')
 bullet('第 1 步：读错误信息。看屏幕上「最后几行」的字——尤其是带 error / No such file / Permission 的那行。错误信息是给人类的，不是天书。')
-bullet('第 2 步：确认自己在哪。输入 pwd，看看是不是在 /mnt/d/Projects/pcaptool。')
+bullet('第 2 步：确认自己在哪。输入 pwd，看看是不是在 /mnt/d/Projects/packetlens。')
 bullet('第 3 步：核对命令。和手册/文档里的命令逐字对比，特别注意斜杠方向（/ 不是 \\）、大小写（Linux 区分大小写）、空格。')
 bullet('第 4 步：查急救箱。《完全教程》第 6.8 节列了常见报错和解决办法。')
 bullet('第 5 步：重开终端。关掉窗口重新开一次，很多玄学问题会消失。')
@@ -136,7 +136,7 @@ code('终端（Terminal）    用打字命令代替鼠标的窗口\n'
      '/mnt/d             WSL 里的「D 盘」\n'
      'sudo               以管理员身份执行（会要密码，抓包需要）\n'
      '编译（make）       把 C 源码翻译成可执行程序\n'
-     '可执行文件         能直接运行的程序本体（本项目的 pcaptool）\n'
+     '可执行文件         能直接运行的程序本体（本项目的 packetlens）\n'
      'git                代码存档工具；git checkout 可恢复文件\n'
      'push.bat           双击=提交+上传 GitHub 的自动化脚本\n'
      'Ctrl+Shift+V       终端里的粘贴（带 Shift！）')

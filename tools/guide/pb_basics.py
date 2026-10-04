@@ -5,7 +5,7 @@ from docbuild import *
 
 h1('第 1 章  电脑与编程的最基础概念')
 
-para('这一章不讲 pcaptool，专门讲「地基」：文件、程序、代码、编译、终端、git……如果你已经懂编程，可以跳到第 2 章；如果完全没接触过，这一章就是为你写的。读完这章，后面所有内容都会变得顺理成章。')
+para('这一章不讲 packetlens，专门讲「地基」：文件、程序、代码、编译、终端、git……如果你已经懂编程，可以跳到第 2 章；如果完全没接触过，这一章就是为你写的。读完这章，后面所有内容都会变得顺理成章。')
 
 h2('1.1 三个最常用的词：文件、文件夹、路径')
 
@@ -15,14 +15,14 @@ bullet('文件（file）：一块有名字的数据。一张照片、一首歌�
 bullet('文件夹（folder / 目录 directory）：用来装文件的「盒子」。盒子里面可以放文件，也可以再放盒子（子文件夹），一层套一层。')
 bullet('路径（path）：文件在电脑里的「完整地址」，从盘符一路写到文件名。比如本项目的文件夹在 Windows 里的地址是：')
 
-code('D:\\Projects\\pcaptool')
+code('D:\\Projects\\packetlens')
 
-para('这一长串的意思逐段拆开看：D: 是硬盘分区（你电脑的 D 盘）→ Projects 是第一层文件夹 → pcaptool 是第二层文件夹。反斜杠 \\ 在 Windows 里表示「进入下一层」。')
+para('这一长串的意思逐段拆开看：D: 是硬盘分区（你电脑的 D 盘）→ Projects 是第一层文件夹 → packetlens 是第二层文件夹。反斜杠 \\ 在 Windows 里表示「进入下一层」。')
 
 para('不过在教程里你还会经常看到另一种写法：')
-code('/mnt/d/Projects/pcaptool')
+code('/mnt/d/Projects/packetlens')
 
-para('这是同一个文件夹在 WSL（一个 Linux 环境，1.7 节详细讲）里的地址。规律很好记：/mnt/d 就是「D 盘」，路径改用正斜杠 / 分层，而且是从头开始写。两套写法指的是同一个地方——Windows 的 D:\\Projects\\pcaptool 和 WSL 的 /mnt/d/Projects/pcaptool 是同一批文件。')
+para('这是同一个文件夹在 WSL（一个 Linux 环境，1.7 节详细讲）里的地址。规律很好记：/mnt/d 就是「D 盘」，路径改用正斜杠 / 分层，而且是从头开始写。两套写法指的是同一个地方——Windows 的 D:\\Projects\\packetlens 和 WSL 的 /mnt/d/Projects/packetlens 是同一批文件。')
 
 note('小坑预警：Windows 用反斜杠 \\，Linux/WSL 用正斜杠 /。写错方向是新手最常见的错误之一。如果哪天命令报「No such file or directory」，第一件事就是检查斜杠方向和拼写。')
 
@@ -33,7 +33,7 @@ para('电脑本身其实非常「笨」。它不会自己理解你想干什么�
 bullet('先干这个，再干那个，如果遇到某种情况就那样处理……')
 bullet('菜谱写得越精确，电脑做得越对。一个逗号都不能含糊。')
 
-para('你电脑上的一切——浏览器、微信、游戏——都是程序。程序被启动后，电脑就「照着清单干活」。本项目 pcaptool 也是一个程序：一份用 C 语言写的指令清单，干的事是「读入网络数据包的录像文件，把里面的内容拆解、打印、统计」。')
+para('你电脑上的一切——浏览器、微信、游戏——都是程序。程序被启动后，电脑就「照着清单干活」。本项目 packetlens 也是一个程序：一份用 C 语言写的指令清单，干的事是「读入网络数据包的录像文件，把里面的内容拆解、打印、统计」。')
 
 h2('1.3 源代码与编程语言')
 
@@ -41,7 +41,7 @@ para('写「菜谱」不能用中文大白话直接写——电脑听不懂。�
 
 para('编程语言有很多种，常见的有 C、Python、Java、JavaScript……可以粗略理解成：不同语言适合不同场合，就像中文、英文、日语各有各的用武之地。本项目里出现了两种语言，分工很清楚：')
 
-bullet('C 语言：写工具本体（pcaptool 程序本身）。跑得快、贴近底层，是「硬核」的那部分。')
+bullet('C 语言：写工具本体（packetlens 程序本身）。跑得快、贴近底层，是「硬核」的那部分。')
 bullet('Python：写辅助脚本（生成测试数据、生成这份教程的文档）。写起来轻松，适合做「周边」工作。')
 
 para('你会在项目里看到 C 文件（.c 结尾）和 Python 文件（.py 结尾）——按扩展名就能一眼分辨语言。')
@@ -61,11 +61,11 @@ para('C 语言有个重要特点：它不能直接运行，必须先「翻译」
 
 bullet('源代码（main.c）= 你写的英文作文稿')
 bullet('编译器（gcc）= 翻译官，把作文翻译成电脑母语（机器码）')
-bullet('可执行程序（pcaptool）= 翻译完成的成品，电脑能直接执行')
+bullet('可执行程序（packetlens）= 翻译完成的成品，电脑能直接执行')
 
 para('在实际操作里，你只需要敲一个命令：')
 code('make')
-para('这个命令会调用一个叫 gcc 的编译器，把 src/main.c 翻译成名为 pcaptool 的可执行文件。（make 具体怎么知道该干什么，由项目里的 Makefile 文件规定——第 5 章会逐行讲解它。）')
+para('这个命令会调用一个叫 gcc 的编译器，把 src/main.c 翻译成名为 packetlens 的可执行文件。（make 具体怎么知道该干什么，由项目里的 Makefile 文件规定——第 5 章会逐行讲解它。）')
 
 para('编译时，翻译官还会给你挑毛病：')
 bullet('「错误（error）」= 语法问题，翻译失败，必须改。')
@@ -85,9 +85,9 @@ code('cd 文件夹名     进入某个文件夹（change directory）\n'
      'ls              列出当前文件夹里有什么（list）\n'
      'pwd             显示我现在在哪个文件夹（print working directory）\n'
      'make            按 Makefile 的指示编译项目\n'
-     './pcaptool 参数  运行当前文件夹里的 pcaptool 程序，并把参数传给它')
+     './packetlens 参数  运行当前文件夹里的 packetlens 程序，并把参数传给它')
 
-para('注意最后一条的 ./ ——它的意思是「当前文件夹里的」。电脑讲究精确：你说 pcaptool，它可能去系统里到处找；你说 ./pcaptool，它就知道是「就现在这个文件夹里的那个」。')
+para('注意最后一条的 ./ ——它的意思是「当前文件夹里的」。电脑讲究精确：你说 packetlens，它可能去系统里到处找；你说 ./packetlens，它就知道是「就现在这个文件夹里的那个」。')
 
 para('还有个小符号要说清楚：教程里命令前面的 $ 只是一个「提示符」，表示「接下来这行是在终端里输入的」，不要真的敲 $ 进去。')
 
@@ -100,11 +100,11 @@ para('为什么要请出 Linux？因为抓包工具和 C 编译工具链在 Linu
 para('两个要记住的点：')
 
 bullet('打开方式：开始菜单搜「Ubuntu」或「WSL」，打开的就是 Linux 终端；也可以用 Windows Terminal 里开一个 Ubuntu 标签页。')
-bullet('路径互通的规律：Windows 的 D 盘在 WSL 里是 /mnt/d，所以项目的 WSL 地址就是 /mnt/d/Projects/pcaptool。在 WSL 里，cd /mnt/d/Projects/pcaptool 就能进入项目。')
+bullet('路径互通的规律：Windows 的 D 盘在 WSL 里是 /mnt/d，所以项目的 WSL 地址就是 /mnt/d/Projects/packetlens。在 WSL 里，cd /mnt/d/Projects/packetlens 就能进入项目。')
 
 note('你电脑上的 WSL 已经装好了（Ubuntu 24.04），教程不再覆盖安装过程。如果哪天重装，记得给 WSL 配好网络——那是另一个话题了。')
 
-image('tools/assets/d07_wsl_path.png', '图 1-1：Windows 的 D:\\Projects\\pcaptool 和 WSL 的 /mnt/d/Projects/pcaptool 是同一批文件')
+image('tools/assets/d07_wsl_path.png', '图 1-1：Windows 的 D:\\Projects\\packetlens 和 WSL 的 /mnt/d/Projects/packetlens 是同一批文件')
 
 h2('1.8 git 与 GitHub：代码的「时间机器 + 云端保险柜」')
 
@@ -126,7 +126,7 @@ bullet('网络管理员用它排查「网为什么慢/断」')
 bullet('安全工程师用它分析「有没有攻击、泄露了什么」')
 bullet('学生用它——像你——理解网络协议「到底长什么样」')
 
-para('最有名的抓包工具是 Wireshark（图形界面）和 tcpdump（命令行）。它们背后的核心库就是本项目用的 libpcap。我们的 pcaptool 相当于「迷你版 tcpdump」：先支持读「录像文件」，再支持「现场直播」（实时抓网卡），把包一层层拆解给你看。')
+para('最有名的抓包工具是 Wireshark（图形界面）和 tcpdump（命令行）。它们背后的核心库就是本项目用的 libpcap。我们的 packetlens 相当于「迷你版 tcpdump」：先支持读「录像文件」，再支持「现场直播」（实时抓网卡），把包一层层拆解给你看。')
 
 para('最后认识一个文件格式：pcap。抓下来的数据包如果不存起来，关掉窗口就没了。pcap 就是抓包的「录像文件格式」：里面按顺序存着每个包的全套字节和时间戳。本项目自带一个示例文件 samples/sample.pcap（六个包），以及一个能「凭空造出」这种文件的 Python 脚本。')
 

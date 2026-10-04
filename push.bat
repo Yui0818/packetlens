@@ -1,12 +1,12 @@
 @echo off
 REM ============================================================
-REM  pcaptool 一键备份脚本 —— 双击运行即可
+REM  packetlens 一键备份脚本 —— 双击运行即可
 REM  作用：把当前项目所有改动提交(commit)并推送到 GitHub
 REM  GitHub 就是最可靠的云端备份，改完代码双击它=完成备份
 REM ============================================================
 cd /d "%~dp0"
 
-echo ========== pcaptool 备份开始 ==========
+echo ========== packetlens 备份开始 ==========
 
 REM 1. 检查有没有改动需要提交
 git add -A
@@ -49,7 +49,7 @@ if errorlevel 1 (
     echo "推送失败，请检查网络后再试。"
 ) else (
     echo.
-    echo "===== 备份成功！代码已推送 GitHub：https://github.com/Yui0818/pcaptool ====="
+    echo "===== 备份成功！代码已推送 GitHub：https://github.com/Yui0818/packetlens ====="
 )
 
 echo.

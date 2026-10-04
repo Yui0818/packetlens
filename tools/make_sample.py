@@ -4,7 +4,7 @@
 make_sample.py —— 生成一个标准的 pcap 测试文件
 ================================================
 这个脚本不依赖任何外网资源，纯手工用 Python 构造一批"真实格式"的网络包，
-写到 samples/sample.pcap 里，给 pcaptool 测试用。
+写到 samples/sample.pcap 里，给 packetlens 测试用。
 
 pcap 文件格式（全局头 + 若干数据包）：
   - 全局头（24 字节）：说明"这是 pcap 文件、时间精度、链路层类型"

@@ -14,22 +14,22 @@ code('CC = gcc\n'
      'CFLAGS = -Wall -Wextra -O2\n'
      'LIBS = -lpcap\n'
      '\n'
-     'all: pcaptool\n'
+     'all: packetlens\n'
      '\n'
-     'pcaptool: src/main.c\n'
-     '\t$(CC) $(CFLAGS) -o pcaptool src/main.c $(LIBS)\n'
+     'packetlens: src/main.c\n'
+     '\t$(CC) $(CFLAGS) -o packetlens src/main.c $(LIBS)\n'
      '\n'
      'clean:\n'
-     '\trm -f pcaptool\n'
+     '\trm -f packetlens\n'
      '\n'
      '.PHONY: all clean')
 
 bullet('CC = gcc：定义一个变量 CC，值是 gcc（GNU C 编译器）。用变量是为了「想换编译器时只改一处」。')
 bullet('CFLAGS = -Wall -Wextra -O2：编译参数。Wall / Wextra 表示「把常见警告全打开」（我们追求零警告）；-O2 表示「二级优化」，让生成的可执行文件跑得更快。')
 bullet('LIBS = -lpcap：要链接的库。字母 L 后面的 pcap 就是 libpcap——-l 的规则是「libpcap 写成 -lpcap」。')
-bullet('all: pcaptool：默认目标。敲 make 不带参数时执行 all，all 又指向 pcaptool——意思是「产出 pcaptool 这个文件」。')
-bullet('pcaptool: src/main.c 和下一行：核心编译规则。冒号前面是要生成的文件（pcaptool），后面是「材料」（src/main.c）。下一行（以 Tab 开头）是具体命令：用 $(CC) $(CFLAGS) 把 main.c 编译成 -o pcaptool（o = output），并链接 $(LIBS)。')
-bullet('clean: 和 rm -f pcaptool：打扫任务——make clean 会删掉编译产物。想「从零重新编译」时先 clean 一下最保险。')
+bullet('all: packetlens：默认目标。敲 make 不带参数时执行 all，all 又指向 packetlens——意思是「产出 packetlens 这个文件」。')
+bullet('packetlens: src/main.c 和下一行：核心编译规则。冒号前面是要生成的文件（packetlens），后面是「材料」（src/main.c）。下一行（以 Tab 开头）是具体命令：用 $(CC) $(CFLAGS) 把 main.c 编译成 -o packetlens（o = output），并链接 $(LIBS)。')
+bullet('clean: 和 rm -f packetlens：打扫任务——make clean 会删掉编译产物。想「从零重新编译」时先 clean 一下最保险。')
 bullet('.PHONY: all clean：声明 all 和 clean 是「动作名」而不是「文件名」——防止哪天你正好建了个叫 clean 的文件导致混乱。')
 note('超级经典的一个坑：那些命令行的缩进必须是 Tab 键（制表符），不能用空格！这是 make 的历史规定。很多编辑器会自动把 Tab 转成空格，然后就报「missing separator」——如果你遇到这个错，先查缩进。')
 
@@ -136,9 +136,9 @@ h2('5.5 更新文档.bat 逐行：一键刷新两份 Word')
 
 code('@echo off\n'
      'cd /d "%~dp0"\n'
-     'wsl.exe -d Ubuntu -- bash -c "cd /mnt/d/Projects/pcaptool && python3 tools/make_doc.py"\n'
-     'copy /y "docs\\pcaptool学习笔记.docx" "%USERPROFILE%\\Desktop\\pcaptool学习笔记.docx" >nul\n'
-     'echo 已更新：docs\\pcaptool学习笔记.docx（并复制到桌面）\n'
+     'wsl.exe -d Ubuntu -- bash -c "cd /mnt/d/Projects/packetlens && python3 tools/make_doc.py"\n'
+     'copy /y "docs\\packetlens学习笔记.docx" "%USERPROFILE%\\Desktop\\packetlens学习笔记.docx" >nul\n'
+     'echo 已更新：docs\\packetlens学习笔记.docx（并复制到桌面）\n'
      'pause')
 bullet('中间那行：调用 WSL，进入项目目录，运行生成《学习笔记》的 Python 脚本。wsl.exe 是 Windows 直接调用 Linux 的入口。')
 bullet('copy /y：把仓库里的文档复制一份到桌面（%USERPROFILE% 是「当前用户的主目录」，/y 表示「覆盖时不再问」）。这样你随时在桌面上就能打开最新版。')
@@ -147,7 +147,7 @@ bullet('pause：运行完停一下，让你能看到结果再关窗口——不�
 h2('5.6 .gitignore：告诉 git「这些别管」')
 
 code('# 编译出来的可执行程序，不应该上传（别人自己 make 就行）\n'
-     'pcaptool\n'
+     'packetlens\n'
      '\n'
      '# 编译过程中的临时/目标文件\n'
      '*.o\n'

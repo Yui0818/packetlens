@@ -13,13 +13,13 @@ para('练习的正确打开方式：先自己答，再看答案要点。所有�
 h2('E.1 热身题（1~8：看和玩）')
 
 para('第 1 题：不查文档，写出「在 WSL 里进入项目并跑完整分析」的最短命令序列（两条命令）。')
-note('答案要点：cd /mnt/d/Projects/pcaptool 之后 ./pcaptool samples/sample.pcap。（如果还没编译过，中间要加一句 make。）')
+note('答案要点：cd /mnt/d/Projects/packetlens 之后 ./packetlens samples/sample.pcap。（如果还没编译过，中间要加一句 make。）')
 
 para('第 2 题：跑一遍完整分析，数一数：六个包里几个 TCP、几个 UDP、几个 ICMP？')
 note('答案要点：TCP 3 个（包 1、2、4），UDP 1 个（包 3），ICMP 2 个（包 5、6）。')
 
 para('第 3 题：只用过滤功能把「ping 的两个包」单独显示出来，命令怎么写？输出里的编号是哪几个？')
-note('答案要点：./pcaptool samples/sample.pcap icmp；编号是 #5 和 #6（中间没有跳号，因为它们是连着的两个）。')
+note('答案要点：./packetlens samples/sample.pcap icmp；编号是 #5 和 #6（中间没有跳号，因为它们是连着的两个）。')
 
 para('第 4 题：把过滤切换成 host 192.168.1.1，为什么结果和上一题一样？再用 host 93.184.216.34 试试，结果为什么不同？')
 note('答案要点：样例里只有 ping 的两个包沾 192.168.1.1；而 93.184.216.34 是网站 IP，沾它的是包 1、2、3、4（四个）。')
@@ -31,7 +31,7 @@ para('第 6 题：不看屏幕，猜一猜：统计里 Top 端口为什么 54321
 note('答案要点：握手一来一回 + 数据包：54321 出现 3 次（源、目的、源），80 也是 3 次（目的、源、目的）——收发都算的规则。')
 
 para('第 7 题：实时抓包时不写网卡名，程序默认用什么？抓 10 个包怎么写？')
-note('答案要点：默认 "any"；抓 10 个是 sudo ./pcaptool live any 10（或 sudo ./pcaptool live 10 也一样）。')
+note('答案要点：默认 "any"；抓 10 个是 sudo ./packetlens live any 10（或 sudo ./packetlens live 10 也一样）。')
 
 para('第 8 题：故意写一个错的过滤词（比如 port abc），程序会怎样？为什么说这个设计是「好的」？')
 note('答案要点：打印支持的写法示例后退出（返回码 1）。好在于：宁可明确报错，也不猜用户的意思——猜错的代价更大。')
@@ -68,7 +68,7 @@ note('答案要点：fopen 失败（路径不存在/没权限）会返回 NULL�
 h2('E.3 动手改代码题（18~25：改完要能重新 make 并看到效果）')
 
 para('第 18 题：把默认抓包数量从 20 改成 30。（提示：找 live_count。）')
-note('答案要点：main 里 int live_count = 20; 改成 30，重新 make。用 ./pcaptool live lo 试试默认值（记得 sudo）。')
+note('答案要点：main 里 int live_count = 20; 改成 30，重新 make。用 ./packetlens live lo 试试默认值（记得 sudo）。')
 
 para('第 19 题：让 UDP 那行输出多打印一句「（无连接协议）」。')
 note('答案要点：在 print_packet 的 UDP 分支的 printf 后面加一句 printf("    （无连接协议）\\n");。')
@@ -79,7 +79,7 @@ note('答案要点：三处动刀：结构体加 icmp_seq；parse 里 icmp_seq =
 para('第 21 题：把 Top 榜的显示数量从 5 改成 3。（提示：两处 limit。）')
 note('答案要点：emit_stats 里两个 int limit = ... : 5; 都改成 3。')
 
-para('第 22 题：让程序支持一个「只看前 N 个包」的功能——比如 ./pcaptool file.pcap first 5。说说你的改法思路（不要求全写对）。')
+para('第 22 题：让程序支持一个「只看前 N 个包」的功能——比如 ./packetlens file.pcap first 5。说说你的改法思路（不要求全写对）。')
 note('答案要点：思路——参数解析里认领 first 和它的数字（存成全局 limit_show）；handle_packet 显示前判断 shown < limit_show，超了就跳过显示（或直接 break 整个循环）。这是「从需求到改动点」的练习。')
 
 para('第 23 题：给报告文件开头加一行「生成时间」。提示：C 里拿当前时间要引入 <time.h> 用 time()/localtime()。做不出来就只写出「需要在哪一步加」。')
@@ -129,7 +129,7 @@ h2('F.4 git 相关（4 问）')
 qa('commit 和 push 的区别？', 'commit 是本地存档（快照），push 是把存档上传到 GitHub。可以提交多次再一次性推送。')
 qa('分支是干嘛的？你用了吗？', '分支 = 平行版本线，用来安全地做实验/多人协作。这个项目规模小，只用了 master 主线；但我了解标准流程是 feature 分支 → 合并。')
 qa('改动错了怎么回退？', '还没提交：git checkout -- 文件 丢弃改动。已提交想撤销：git revert 生成一个「反向提交」（安全，历史可查）。避免用 reset 硬删历史。')
-qa('.gitignore 是什么？你忽略了什么？', '告诉 git 哪些文件不跟踪。本项目忽略了编译产物（pcaptool、*.o）和 Python 缓存（__pycache__）——原则是「只存源代码，不存可再生成的东西」。')
+qa('.gitignore 是什么？你忽略了什么？', '告诉 git 哪些文件不跟踪。本项目忽略了编译产物（packetlens、*.o）和 Python 缓存（__pycache__）——原则是「只存源代码，不存可再生成的东西」。')
 
 para('练习和面试题都过一遍，这个项目在你脑子里就不再是「一段代码」，而是一套可以随时调用、可以讲给别人听的完整经验了。')
 
@@ -141,7 +141,7 @@ h1('附录 G  英文词汇总表（界面上的每个字都看懂）')
 para('这一份是「查字典」用的：以后在 GitHub 页面、代码、终端、网络资料里看到不认识的英文，先来这里找。按出现场景分成四组，每条 = 单词 · 中文意思 · 你在哪儿会碰到它。')
 
 h2('G.1 GitHub 界面上的英文（按页面出现顺序）')
-bullet('repository / repo · 仓库 · 项目在 GitHub 上的「家」，你的 pcaptool 就是一个 repo')
+bullet('repository / repo · 仓库 · 项目在 GitHub 上的「家」，你的 packetlens 就是一个 repo')
 bullet('owner · 所有者 · 仓库名前面那个账号名（Yui0818 / 里的前半截）')
 bullet('Public / Private · 公开 / 私有 · 仓库可见性徽章；Public = 谁都能看')
 bullet('Watch · 关注 · 按钮：订阅这个仓库的动态通知')

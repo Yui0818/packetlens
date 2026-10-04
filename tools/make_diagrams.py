@@ -100,7 +100,7 @@ def d01_encapsulation():
                 color='#5B84A8', arrowprops=dict(arrowstyle='-', color='#5B84A8'))
     ax.annotate('应用数据', (8.4, 4.5), (8.4, 3.6), ha='center', fontsize=11,
                 color=GRAY, arrowprops=dict(arrowstyle='-', color=GRAY))
-    ax.text(5.0, 2.9, 'pcaptool 的解析顺序就是从最外层往里剥：先看以太网头，再看 IP 头，最后看 TCP/UDP/ICMP。',
+    ax.text(5.0, 2.9, 'packetlens 的解析顺序就是从最外层往里剥：先看以太网头，再看 IP 头，最后看 TCP/UDP/ICMP。',
             ha='center', fontsize=11, color=GRAY)
     save(fig, 'd01_encapsulation.png')
 
@@ -158,7 +158,7 @@ def d04_endian():
     box(ax, 2.1, 1.6, 1.3, 1.0, '0x12', fc=AMBER, ec=AMBER, tc='white', fs=13)
     ax.text(3.7, 2.1, '小端 —— x86 电脑平时的习惯，低位在前', fontsize=11.5,
             color=AMBER, va='center')
-    ax.text(5.0, 0.75, '所以 pcaptool 不能直接把字节读成数字，必须用 rd16/rd32 手工按大端拼——这就是那两个小函数的全部意义。',
+    ax.text(5.0, 0.75, '所以 packetlens 不能直接把字节读成数字，必须用 rd16/rd32 手工按大端拼——这就是那两个小函数的全部意义。',
             ha='center', fontsize=10.5, color=GRAY)
     save(fig, 'd04_endian.png')
 
@@ -214,12 +214,12 @@ def d07_wsl_path():
     fig, ax = new_fig(9.6, 3.1, 6.6)
     box(ax, 0.5, 4.0, 4.0, 2.6, '', fc=LGRAY, ec=GRAY)
     ax.text(2.5, 6.15, 'Windows（资源管理器）', ha='center', fontsize=12, color=NAVY, fontweight='bold')
-    ax.text(2.5, 5.35, 'D:\\Projects\\pcaptool', ha='center', fontsize=12.5, color='#1A1A1A',
+    ax.text(2.5, 5.35, 'D:\\Projects\\packetlens', ha='center', fontsize=12.5, color='#1A1A1A',
             family='monospace')
     ax.text(2.5, 4.55, '（反斜杠 \\ 分层，从盘符开始）', ha='center', fontsize=10, color=GRAY)
     box(ax, 5.5, 4.0, 4.0, 2.6, '', fc='#1E1E1E', ec='#1E1E1E')
     ax.text(7.5, 6.15, 'WSL 终端', ha='center', fontsize=12, color=NAVY, fontweight='bold')
-    ax.text(7.5, 5.35, '$ cd /mnt/d/Projects/pcaptool', ha='center', fontsize=12,
+    ax.text(7.5, 5.35, '$ cd /mnt/d/Projects/packetlens', ha='center', fontsize=12,
             color='#7FE08A', family='monospace')
     ax.text(7.5, 4.55, '（正斜杠 / 分层，/mnt/d 就是 D 盘）', ha='center', fontsize=10, color=GRAY)
     arrow(ax, 4.6, 5.3, 5.4, 5.3, text='同一批文件！', fs=11, ty=5.4, color=GREEN, tc=GREEN)
@@ -238,7 +238,7 @@ def d08_github():
     ax.text(0.7, 8.82, 'github.com', fontsize=11, color='white', va='center')
     ax.text(9.55, 8.82, '搜索…   通知   头像', fontsize=9.5, color='#C9D3DD', va='center', ha='right')
     ax.text(0.75, 7.85, 'Yui0818 / ', fontsize=13, color='#0969DA', va='center')
-    ax.text(2.35, 7.85, 'pcaptool', fontsize=13, color='#0969DA', va='center', fontweight='bold')
+    ax.text(2.35, 7.85, 'packetlens', fontsize=13, color='#0969DA', va='center', fontweight='bold')
     ax.text(3.65, 7.85, 'Public', fontsize=9, color=GRAY, va='center',
             bbox=dict(boxstyle='round,pad=0.25', fc='white', ec='#C9D3DD'))
     for i, t in enumerate(['Watch', 'Fork', '★ Star']):

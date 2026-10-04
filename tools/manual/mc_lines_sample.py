@@ -8,7 +8,7 @@ EXPLAINS = {
     4:  '自述标题：make_sample.py——生成一个标准的 pcap 测试文件。',
     5:  '一排等号，纯排版。',
     6:  '自述正文：这个脚本不依赖外网，纯手工用 Python 构造「真实格式」的网络包。',
-    7:  '续行：写到 samples/sample.pcap 里给 pcaptool 测试用。',
+    7:  '续行：写到 samples/sample.pcap 里给 packetlens 测试用。',
     8:  '（docstring 内空行）',
     9:  '接着介绍 pcap 文件格式：全局头 + 若干数据包。',
     10: '格式细节第 1 条：全局头 24 字节，说明「这是 pcap 文件、时间精度、链路层类型」。',

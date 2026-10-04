@@ -5,7 +5,7 @@ from docbuild import *
 
 h1('第 7 章  GitHub 界面完全图解')
 
-para('这一章把仓库页面从上到下、从左到右讲一遍。建议对照着打开：https://github.com/Yui0818/pcaptool ——左边浏览器、右边这份文档。')
+para('这一章把仓库页面从上到下、从左到右讲一遍。建议对照着打开：https://github.com/Yui0818/packetlens ——左边浏览器、右边这份文档。')
 
 h2('7.1 先打开：你会看到的整体布局')
 
@@ -22,7 +22,7 @@ image('tools/assets/d08_github.png', '图 7-1：GitHub 仓库页面各区域示�
 
 h2('7.2 仓库标题区：你是谁、这个仓库叫什么')
 
-bullet('Yui0818 / pcaptool：斜杠左边是「账号名」（也就是你），右边是「仓库名」。点左边的 Yui0818 会进入你的主页——以后别人想看你还有什么项目，就会点这里。')
+bullet('Yui0818 / packetlens：斜杠左边是「账号名」（也就是你），右边是「仓库名」。点左边的 Yui0818 会进入你的主页——以后别人想看你还有什么项目，就会点这里。')
 bullet('Public（公开）徽章：表示这个仓库任何人无需登录都能查看和下载。私有仓库则只有你（和被你邀请的人）能看。做简历项目当然要 Public。')
 bullet('Watch 按钮：订阅这个仓库的「动态通知」（有人提问题、有人改代码会通知你）。自己的仓库一般不需要，别人关注你才用得上。')
 bullet('Fork 按钮：把别人的仓库「复制一份」到自己的账号下自己折腾。注意方向：别人 Fork 你的。现在显示 0，正常。')
@@ -50,7 +50,7 @@ bullet('docs 文件夹里的两个 .docx：GitHub 没法在线预览 Word 文件
 h2('7.5 绿色的 Code 按钮：三种带走代码的方式')
 
 para('点绿色 Code 按钮会弹出三种方式：')
-bullet('HTTPS：给出一个网址（https://github.com/Yui0818/pcaptool.git），任何人用 git clone 这个网址就能把整个项目（含全部历史）复制到本地。免密码可用（公开仓库）。')
+bullet('HTTPS：给出一个网址（https://github.com/Yui0818/packetlens.git），任何人用 git clone 这个网址就能把整个项目（含全部历史）复制到本地。免密码可用（公开仓库）。')
 bullet('SSH：另一种连接方式，用密钥代替密码，适合重度使用者。需要预先配置 SSH 密钥。')
 bullet('GitHub CLI / Download ZIP：前者给出 gh 命令行工具的用法；Download ZIP 最直观——把当前版本的代码打包成 zip 下载，解压即用（但没有 git 历史，只是一份快照）。')
 para('面试官或同学想看你的代码，发这个链接就行：clone 或 ZIP，随他方便。')
@@ -96,7 +96,7 @@ para('养成习惯：改完代码 → push → 刷新看一眼。日积月累，
 
 h2('7.11 把这个链接放进简历的正确姿势')
 
-bullet('简历里写项目名 + 一句话 + 链接：pcaptool（C 语言网络抓包分析工具）github.com/Yui0818/pcaptool')
+bullet('简历里写项目名 + 一句话 + 链接：packetlens（C 语言网络抓包分析工具）github.com/Yui0818/packetlens')
 bullet('面试前自查：README 是不是最新的？提交历史里有没有「半截代码」的尴尬提交？（我们的历史是干净的：每个提交都对应一个能跑的版本。）')
 bullet('被问「给我看看代码」时：把链接发过去，建议对方从 README 开始看，再点进 src/main.c 和提交历史——这三处就是这个项目最好的名片。')
 para('页面上所有英文标签（Watch、Fork、Contributors、Insights……每一处）的逐词中文对照，见本书最后的【附录 G：英文词汇总表】——保证每个字都能看懂。')

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-生成《pcaptool 学习笔记》Word 文档
+生成《packetlens 学习笔记》Word 文档
 ====================================
 这是一个持续更新的学习笔记，把你从零开始学网络、写着这个 C 项目
 的所有步骤、每行代码含义都整理成 Word。
@@ -10,7 +10,7 @@
 章节，然后重新运行本脚本，就会生成最新的完整文档。
 
 运行：python3 tools/make_doc.py
-输出：docs/pcaptool学习笔记.docx
+输出：docs/packetlens学习笔记.docx
 """
 
 import os
@@ -24,7 +24,7 @@ from docbuild import *   # noqa: F401,F403  （doc / h1 / h2 / h3 / para / code 
 # ============================================================
 # 封面
 # ============================================================
-title = doc.add_heading('pcaptool 项目学习笔记', level=0)
+title = doc.add_heading('PacketLens 项目学习笔记', level=0)
 title.alignment = WD_ALIGN_PARAGRAPH.CENTER
 sub = doc.add_paragraph()
 sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -60,7 +60,7 @@ doc.add_page_break()
 # 一、项目是什么
 # ============================================================
 h1('一、项目是什么')
-para('pcaptool 是一个用 C 语言写成的命令行网络抓包 / 分析工具，功能类似于内置版 tcpdump 和 Wireshark。')
+para('packetlens 是一个用 C 语言写成的命令行网络抓包 / 分析工具，功能类似于内置版 tcpdump 和 Wireshark。')
 para('它做的事情是：')
 bullet('读取网络抓包文件（.pcap 格式）')
 bullet('逐个解析其中的数据包')
@@ -103,7 +103,7 @@ para('把「libpcap 抓包库」的头引进来。里面声明了读 pcap 文件
 h2('3.3 main 入口与参数')
 code('int main(int argc, char *argv[])')
 para('程序的入口。argc 是「命令行参数个数」，argv 是「这些参数的内容」。')
-code('比如运行  ./pcaptool xxx.pcap\n则  argc=2\n    argv[0]="./pcaptool"   （程序自己）\n    argv[1]="xxx.pcap"     （第一个参数，文件路径）')
+code('比如运行  ./packetlens xxx.pcap\n则  argc=2\n    argv[0]="./packetlens"   （程序自己）\n    argv[1]="xxx.pcap"     （第一个参数，文件路径）')
 
 h2('3.4 检查参数')
 code('if (argc < 2) {')
@@ -169,14 +169,14 @@ para('把全局头 + 所有包按字节拼起来写盘。现在的样例一共 6
 # ============================================================
 h1('五、构建与运行（Makefile 逐行讲解）')
 para('Makefile 用来告诉编译器「怎么把我的代码变成可执行程序」。')
-code('CC = gcc              # 用哪个编译器\nCFLAGS = -Wall -Wextra -O2   # 编译选项（打开警告、二级优化）\nLIBS = -lpcap          # 链接 libpcap 库\n\nall: pcaptool\npcaptool: src/main.c\n\t$(CC) $(CFLAGS) -o pcaptool src/main.c $(LIBS)\n\nclean:\n\trm -f pcaptool')
-para('执行 make：编译生成 pcaptool。执行 make clean：删掉编译产物。')
+code('CC = gcc              # 用哪个编译器\nCFLAGS = -Wall -Wextra -O2   # 编译选项（打开警告、二级优化）\nLIBS = -lpcap          # 链接 libpcap 库\n\nall: packetlens\npacketlens: src/main.c\n\t$(CC) $(CFLAGS) -o packetlens src/main.c $(LIBS)\n\nclean:\n\trm -f packetlens')
+para('执行 make：编译生成 packetlens。执行 make clean：删掉编译产物。')
 
 # ============================================================
 # 六、项目结构
 # ============================================================
 h1('六、项目结构总览')
-code('pcaptool/\n├── src/main.c            # 主程序（C）\n├── tools/make_sample.py  # 生成测试 pcap\n├── tools/make_doc.py     # 生成学习文档\n├── samples/sample.pcap   # 示例数据\n├── Makefile              # 编译脚本\n├── push.bat              # 一键提交+推送备份脚本\n├── .gitignore            # git 忽略哪些文件\n└── README.md             # 项目说明')
+code('packetlens/\n├── src/main.c            # 主程序（C）\n├── tools/make_sample.py  # 生成测试 pcap\n├── tools/make_doc.py     # 生成学习文档\n├── samples/sample.pcap   # 示例数据\n├── Makefile              # 编译脚本\n├── push.bat              # 一键提交+推送备份脚本\n├── .gitignore            # git 忽略哪些文件\n└── README.md             # 项目说明')
 
 # ============================================================
 # 七、Git 与 GitHub
@@ -188,7 +188,7 @@ h2('7.1 本地提交')
 code('git init                 # 初始化仓库\ngit add -A              # 把改动加进暂存区\ngit commit -m "说明"    # 正式打一个提交')
 
 h2('7.2 推到 GitHub')
-code('gh repo create pcaptool --public --source=. \n    --push --description "..."')
+code('gh repo create packetlens --public --source=. \n    --push --description "..."')
 para('在 GitHub 账号下建公开仓库并推送。')
 
 h2('7.3 署名要点（让你的贡献者只有你自己）')
@@ -304,7 +304,7 @@ para('重构后编译器提示「info.proto / info.ttl 可能未初始化」—�
 # ============================================================
 h1('十、v0.4：过滤表达式——只显示关心的包')
 para('真排查问题时，几百个包你只在意一小撮。加一个过滤表达式，用法向 tcpdump 看齐：')
-code('./pcaptool samples/sample.pcap tcp port 80      # 只看 TCP 且端口含 80 的\n./pcaptool samples/sample.pcap icmp              # 只看 ping\n./pcaptool samples/sample.pcap host 192.168.1.1  # 只看和某 IP 有关的')
+code('./packetlens samples/sample.pcap tcp port 80      # 只看 TCP 且端口含 80 的\n./packetlens samples/sample.pcap icmp              # 只看 ping\n./packetlens samples/sample.pcap host 192.168.1.1  # 只看和某 IP 有关的')
 
 h2('10.1 条件存进一个小结构体')
 
@@ -318,14 +318,14 @@ bullet('atoi("tcp") 返回 0：利用它「不是数字就返回 0」的特性�
 
 h2('10.3 过滤后统计怎么算')
 para('一个设计决定：被过滤掉的包不参与统计——统计口径自动变成「显示出来的包」，所以百分比的分母用 shown_bytes。另外编号会「跳号」（#1 #2 #4），这是有意保留的：一眼能看出中间有包被过滤了。')
-code('$ ./pcaptool samples/sample.pcap tcp port 80\n#1  时间=... （TCP）\n#2  时间=... （TCP）\n#4  时间=... （TCP）\n--- 文件读取完毕 ---\n共 6 个包，总流量 436 字节\n已过滤掉 3 个包（统计只算显示的 3 个）。')
+code('$ ./packetlens samples/sample.pcap tcp port 80\n#1  时间=... （TCP）\n#2  时间=... （TCP）\n#4  时间=... （TCP）\n--- 文件读取完毕 ---\n共 6 个包，总流量 436 字节\n已过滤掉 3 个包（统计只算显示的 3 个）。')
 
 # ============================================================
 # 十一、v0.5 实时抓包
 # ============================================================
 h1('十一、v0.5：实时抓网卡（live 模式）')
 para('前面读的都是文件，现在换成「活的网卡」。一条命令、两种模式：')
-code('./pcaptool live                      # 默认监听所有网卡（any）\n./pcaptool live eth0                 # 指定网卡\n./pcaptool live eth0 50              # 抓 50 个包（默认 20）\n./pcaptool live eth0 50 tcp port 443 # 实时抓 + 过滤，一起用')
+code('./packetlens live                      # 默认监听所有网卡（any）\n./packetlens live eth0                 # 指定网卡\n./packetlens live eth0 50              # 抓 50 个包（默认 20）\n./packetlens live eth0 50 tcp port 443 # 实时抓 + 过滤，一起用')
 
 h2('11.1 pcap_open_live 的四个参数')
 code('pcap_open_live(dev, 65535, 1, 1000, errbuf)')
@@ -341,7 +341,7 @@ h2('11.3 抽出共用管线 handle_packet')
 para('两种模式里「处理一个包」的流程完全一样（编号 → 解析 → 过滤 → 打印 → 统计），于是把它抽成函数 handle_packet，两边都调它。这就是复用：加 live 模式几乎没碰原来的逻辑。')
 
 h2('11.4 真抓一次（WSL 实测）')
-code('$ sudo ./pcaptool live lo 6\n正在监听 lo ...（最多抓 6 个包，想提前停就按 Ctrl+C）\n#1  时间=...  长度=83\n    以太网  源=00:00:00:00:00:00  目的=00:00:00:00:00:00  类型=IPv4(0x0800)\n    IPv4    源=10.255.255.254  目的=10.255.255.254  协议=UDP(17)  TTL=64\n    UDP     源端口=45663  目的端口=53  长度=49\n...（继续抓到 6 个）\n--- 抓包停止（已抓 6 个）---')
+code('$ sudo ./packetlens live lo 6\n正在监听 lo ...（最多抓 6 个包，想提前停就按 Ctrl+C）\n#1  时间=...  长度=83\n    以太网  源=00:00:00:00:00:00  目的=00:00:00:00:00:00  类型=IPv4(0x0800)\n    IPv4    源=10.255.255.254  目的=10.255.255.254  协议=UDP(17)  TTL=64\n    UDP     源端口=45663  目的端口=53  长度=49\n...（继续抓到 6 个）\n--- 抓包停止（已抓 6 个）---')
 para('这 6 个包是 WSL 系统自己的 DNS 查询——不是样例数据，是现场抓到的真实流量。注意实时抓包要 root/sudo（打开混杂模式需要高权限）。')
 
 # ============================================================
@@ -349,16 +349,16 @@ para('这 6 个包是 WSL 系统自己的 DNS 查询——不是样例数据，�
 # ============================================================
 h1('十二、v0.6：导出分析报告（--report）')
 para('最后一块拼图：把结果写进文件，方便存档、发给别人。')
-code('./pcaptool samples/sample.pcap --report 报告.txt')
+code('./packetlens samples/sample.pcap --report 报告.txt')
 para('核心是三件套：fopen(path, "w") 打开文件 → fprintf(f, ...) 往里写（和 printf 一个用法，只是「往哪写」从屏幕变成了文件）→ fclose(f) 关闭。打开的东西一定要关——和 pcap_close 一个道理。')
 para('一个优雅的小改动：统计输出从 print_stats 改成了 emit_stats(FILE *out, ...)——同一份逻辑，传 stdout 就是打屏幕，传文件指针就是写文件。改一个参数，两处通用。')
-code('pcaptool 分析报告\n================\n\n共 6 个包，总流量 436 字节\n\n====== 协议统计 ======\nTCP      3 个包   209 字节（47.9%）\n...')
+code('packetlens 分析报告\n================\n\n共 6 个包，总流量 436 字节\n\n====== 协议统计 ======\nTCP      3 个包   209 字节（47.9%）\n...')
 
 # ============================================================
 # 十三、结语
 # ============================================================
 h1('十三、结语：项目现状与还可以做什么')
-para('到这里，pcaptool 的功能闭环了：读包 → 解析 → 过滤 → 统计 → 实时抓包 → 导出报告——一份完整的小型网络分析工具。')
+para('到这里，packetlens 的功能闭环了：读包 → 解析 → 过滤 → 统计 → 实时抓包 → 导出报告——一份完整的小型网络分析工具。')
 h2('已完成清单')
 bullet('两种输入：读 .pcap 文件 / 实时抓网卡')
 bullet('逐层解析：以太网、IPv4、TCP、UDP、ICMP（含分片判断与边界检查）')
@@ -381,5 +381,5 @@ note('笔记和代码在同一个仓库、一起提交——代码到哪一版�
 # ============================================================
 import os
 os.makedirs('docs', exist_ok=True)
-doc.save('docs/pcaptool学习笔记.docx')
-print('已生成 docs/pcaptool学习笔记.docx')
+doc.save('docs/packetlens学习笔记.docx')
+print('已生成 docs/packetlens学习笔记.docx')

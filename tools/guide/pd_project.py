@@ -5,11 +5,11 @@ from docbuild import *
 
 h1('第 3 章  项目全貌：它能做什么 + 完整演示')
 
-para('前两章打完了地基，现在看楼。这一章先介绍 pcaptool 的全部能力，然后把每个功能真实地跑一遍给你看——所有输出都是从这台电脑上实际运行截取的。')
+para('前两章打完了地基，现在看楼。这一章先介绍 packetlens 的全部能力，然后把每个功能真实地跑一遍给你看——所有输出都是从这台电脑上实际运行截取的。')
 
 h2('3.1 一句话认识它')
 
-para('pcaptool 是一个用 C 语言写的命令行网络包分析工具（迷你版 tcpdump / Wireshark）：它能「读抓包录像」或「现场抓网卡」，把每个网络包一层层拆开给你看，还能过滤、统计、导出报告。')
+para('packetlens 是一个用 C 语言写的命令行网络包分析工具（迷你版 tcpdump / Wireshark）：它能「读抓包录像」或「现场抓网卡」，把每个网络包一层层拆开给你看，还能过滤、统计、导出报告。')
 
 para('它支持两大输入来源、六大功能：')
 code('输入来源：① 读 .pcap 录像文件   ② 实时抓网卡（live 模式）\n'
@@ -24,23 +24,23 @@ code('输入来源：① 读 .pcap 录像文件   ② 实时抓网卡（live 模
 h2('3.2 完整演示（一）：编译')
 
 para('第一次使用需要先「翻译」（编译）。在 WSL 终端里：')
-code('$ cd /mnt/d/Projects/pcaptool\n'
+code('$ cd /mnt/d/Projects/packetlens\n'
      '$ make\n'
-     'gcc -Wall -Wextra -O2 -o pcaptool src/main.c -lpcap')
-para('看到最后一行 gcc 命令，就说明翻译完成，生成了可执行文件 pcaptool。（如果此时电脑没有任何输出还报了个错，通常是漏装了 libpcap，见第 6 章急救箱。）')
+     'gcc -Wall -Wextra -O2 -o packetlens src/main.c -lpcap')
+para('看到最后一行 gcc 命令，就说明翻译完成，生成了可执行文件 packetlens。（如果此时电脑没有任何输出还报了个错，通常是漏装了 libpcap，见第 6 章急救箱。）')
 
 h2('3.3 完整演示（二）：不写参数时的用法提示')
 para('直接运行、不给任何参数，程序会贴心地打印用法：')
-code('$ ./pcaptool\n'
-     '用法: ./pcaptool <pcap文件> [过滤表达式] [--report 文件名]\n'
-     '      ./pcaptool live [网卡名] [数量] [过滤表达式] [--report 文件名]\n'
+code('$ ./packetlens\n'
+     '用法: ./packetlens <pcap文件> [过滤表达式] [--report 文件名]\n'
+     '      ./packetlens live [网卡名] [数量] [过滤表达式] [--report 文件名]\n'
      '过滤表达式示例: tcp / udp / icmp / port 80 / tcp port 80 / host 192.168.1.1')
 para('两行用法对应两种模式：第一种「读文件」，第二种「实时抓包」。方括号 [ ] 里的东西表示可选。')
 
 h2('3.4 完整演示（三）：分析样例文件（最核心的功能）')
 
 para('项目自带的样例文件 samples/sample.pcap 里有六个精心设计的包。运行：')
-code('$ ./pcaptool samples/sample.pcap')
+code('$ ./packetlens samples/sample.pcap')
 
 para('输出如下（这就是本工具的名片）：')
 code('#1  时间=1700000000.000100  长度=54\n'
@@ -96,13 +96,13 @@ para('统计报告一眼就能回答三个问题：这段流量以什么协议�
 h2('3.5 完整演示（四）：过滤——只看关心的包')
 
 para('六个包不嫌多，真实场景动辄几十万个包，所以有了过滤功能。三种典型写法：')
-code('$ ./pcaptool samples/sample.pcap tcp port 80\n'
+code('$ ./packetlens samples/sample.pcap tcp port 80\n'
      '（只显示和 TCP 80 端口有关的包 #1 #2 #4，其余静默跳过）\n'
      '\n'
-     '$ ./pcaptool samples/sample.pcap icmp\n'
+     '$ ./packetlens samples/sample.pcap icmp\n'
      '（只显示两个 ping 包 #5 #6）\n'
      '\n'
-     '$ ./pcaptool samples/sample.pcap host 192.168.1.1\n'
+     '$ ./packetlens samples/sample.pcap host 192.168.1.1\n'
      '（只显示和 192.168.1.1 这个 IP 来往的包）')
 
 para('以 tcp port 80 为例，输出恰好是三个握手/传输包，编号是「跳号」的：')
@@ -121,7 +121,7 @@ para('注意两件事：①编号从 #1 直接跳到 #4——跳号是故意保�
 h2('3.6 完整演示（五）：实时抓网卡')
 
 para('不看录像了，直接抓活的。这条命令在 WSL 里真的执行过（需要管理员权限）：')
-code('$ sudo ./pcaptool live lo 3\n'
+code('$ sudo ./packetlens live lo 3\n'
      '正在监听 lo ...（最多抓 3 个包，想提前停就按 Ctrl+C）\n'
      '#1  时间=1791069069.490611  长度=98\n'
      '    以太网  源=00:00:00:00:00:00  目的=00:00:00:00:00:00  类型=IPv4(0x0800)\n'
@@ -146,18 +146,18 @@ para('这是一次真实的现场抓取：命令执行的同时，WSL 系统正�
 h2('3.7 项目文件结构总览')
 
 para('整个项目文件夹长这样，每个文件的用途一句话说清：')
-code('pcaptool/\n'
+code('packetlens/\n'
      '├── src/\n'
      '│   └── main.c          # 【核心】全部 C 代码都在这一个文件里（约 700 行）\n'
      '├── tools/\n'
      '│   ├── make_sample.py  # 用 Python「凭空造」出测试用的 pcap 文件\n'
-     '│   ├── make_doc.py     # 生成《pcaptool 学习笔记》Word 文档\n'
-     '│   └── guide/          # 生成《pcaptool 完全教程》（本文档）的各章节\n'
+     '│   ├── make_doc.py     # 生成《packetlens 学习笔记》Word 文档\n'
+     '│   └── guide/          # 生成《packetlens 完全教程》（本文档）的各章节\n'
      '├── samples/\n'
      '│   └── sample.pcap     # 示例数据：六个精心构造的网络包\n'
      '├── docs/\n'
-     '│   ├── pcaptool学习笔记.docx    # 开发历程 + 每版代码讲解\n'
-     '│   └── pcaptool完全教程.docx    # 你正在看的这本\n'
+     '│   ├── packetlens学习笔记.docx    # 开发历程 + 每版代码讲解\n'
+     '│   └── packetlens完全教程.docx    # 你正在看的这本\n'
      '├── Makefile            # 编译说明书（make 命令照着它干活）\n'
      '├── push.bat            # 一键提交+推送（Windows 双击用）\n'
      '├── 更新文档.bat         # 一键刷新两份 Word 文档（双击用）\n'
@@ -183,7 +183,7 @@ para('每个版本、每次改动都完整地记录在 GitHub 的提交历史里
 h2('3.9 它和 Wireshark / tcpdump 是什么关系')
 
 para('你可能会问：现成的 Wireshark 那么好用，为什么还写一个？三个层次的回答：')
-bullet('功能层面：pcaptool 是它们的「迷你版」，能力远不及前辈——它存在的意义不在替代，而在「亲手实现」')
+bullet('功能层面：packetlens 是它们的「迷你版」，能力远不及前辈——它存在的意义不在替代，而在「亲手实现」')
 bullet('学习层面：Wireshark 底层用的也是 libpcap，我们和它共享同一套「抓包引擎」，只是自己写了「拆包 + 展示」的部分。相当于拆开业内标准工具的内核，看看里面的齿轮怎么转')
 bullet('工程层面：这个小项目走完了「写代码 → 编译 → 调试 → 版本管理 → 发布 GitHub → 文档」的完整流程，这正是简历和面试想看到的东西')
 

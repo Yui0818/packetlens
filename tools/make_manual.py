@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-生成《pcaptool 逐行手册》
+生成《packetlens 逐行手册》
 ==========================
 运行：python3 tools/make_manual.py
-输出：docs/pcaptool逐行手册.docx
+输出：docs/packetlens逐行手册.docx
 
 组成：
   - tools/manual/mz_intro.py       封面 + 手册使用说明
@@ -106,7 +106,7 @@ def main():
     # 第八部分：LICENSE 与 README（散文体逐段）
     others.build_license_readme(h1, h2, para, bullet, code, note)
 
-    out = os.path.join(ROOT, 'docs', 'pcaptool逐行手册.docx')
+    out = os.path.join(ROOT, 'docs', 'packetlens逐行手册.docx')
     save(out)
 
 

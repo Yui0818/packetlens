@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-"""《pcaptool 逐行手册》封面与使用说明。"""
+"""《packetlens 逐行手册》封面与使用说明。"""
 
 from docbuild import *
 
 cover(
-    'pcaptool 逐行手册',
+    'PacketLens 逐行手册',
     '每一行代码 · 每一个操作步骤 · 手把手版',
-    '配套项目：pcaptool v0.6（C 语言网络抓包分析工具）\n'
+    '配套项目：PacketLens（网镜）v0.6 —— C 语言写的网络抓包分析工具\n'
     '作者：刘梓涵（Yui0818）· 南大电院 2025 级\n'
     '本手册与《学习笔记》《完全教程》同源，由项目文档系统生成'
 )
