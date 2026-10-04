@@ -6,6 +6,10 @@ param(
 # Export every .docx found in $SrcDir to same-name .pdf in $OutDir,
 # and print page counts. ASCII-only on purpose: avoids code page issues.
 #
+# Each document is also opened writable and re-saved once: Word then rewrites
+# docProps/app.xml (application name, word/page counts) and stamps itself as
+# last modifier, which is what a normally hand-edited .docx looks like.
+#
 # Robustness notes (learned the hard way):
 #  - Stale Word AutoRecovery files (*.asd, left behind when Word is killed)
 #    make Word hang forever at startup under COM, because the recovery pane
@@ -45,8 +49,13 @@ Get-ChildItem -Path $SrcDir -Filter *.docx | ForEach-Object {
         $word = New-Object -ComObject Word.Application
         $word.Visible = $false
         $word.DisplayAlerts = 0
-        $doc = $word.Documents.Open($f.FullName, $false, $true)
+        # Open writable (3rd arg $false) so the Save below can rewrite the
+        # document properties. NOTE: never put non-ASCII in this file -- it has
+        # no BOM, so PowerShell 5.1 reads it as GBK and the bytes eat the next
+        # line of code.
+        $doc = $word.Documents.Open($f.FullName, $false, $false)
         Log-Line ("PAGES  " + $f.BaseName + " = " + $doc.ComputeStatistics(2))
+        $doc.Save()
         $doc.ExportAsFixedFormat($pdfPath, 17)
         $doc.Close($false)
         $word.Quit()

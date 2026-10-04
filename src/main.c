@@ -1,13 +1,13 @@
 /*
- * PacketLens（网镜）—— 命令行网络抓包分析工具
+ * PacketLens（网镜）：命令行网络抓包分析工具
  * 第一阶段（v0.1）：读取一个 pcap 文件，打印每个包的长度和时间戳。
- * 第二阶段（v0.2）：把每个包逐层"拆开"解析——以太网 → IPv4 → TCP/UDP/ICMP。
- * 第三阶段（v0.3）：统计——按协议算流量占比、Top IP、Top 端口排名。
+ * 第二阶段（v0.2）：把每个包逐层"拆开"解析：以太网 → IPv4 → TCP/UDP/ICMP。
+ * 第三阶段（v0.3）：统计：按协议算流量占比、Top IP、Top 端口排名。
  *                  为此做了一次重构：先把解析结果整理成一个结构体（PacketInfo），
  *                  再分别交给"打印"和"统计"去用（而不是边解析边打印）。
- * 第四阶段（v0.4）：过滤表达式——只显示关心的包（比如 tcp port 80）。
- * 第五阶段（v0.5）：实时抓网卡（live 模式）——和读文件共用同一套解析管线。
- * 第六阶段（v0.6）：导出分析报告（--report 文件名）——同一份统计写到文件。
+ * 第四阶段（v0.4）：过滤表达式，只显示关心的包（比如 tcp port 80）。
+ * 第五阶段（v0.5）：实时抓网卡（live 模式），和读文件共用同一套解析管线。
+ * 第六阶段（v0.6）：导出分析报告（--report 文件名），同一份统计写到文件。
  *
  * 这个程序是我们整个项目的起点，它做的事情：
  *   1. 打开一个 pcap 文件（pcap 是网络抓包的标准文件格式）
@@ -145,7 +145,7 @@ static int parse_packet(const unsigned char *pkt, unsigned int len, PacketInfo *
     info->note = NULL;
 
     /* 以太网头固定 14 字节：目的MAC(6) 源MAC(6) 类型(2)。
-     * 这里用一个循环把 6 个字节搬进结构体——数组不能整体赋值，只能一个个搬。 */
+     * 这里用一个循环把 6 个字节搬进结构体，数组不能整体赋值，只能一个个搬。 */
     if (len < 14) {
         return 0;
     }
@@ -288,7 +288,7 @@ static void print_packet(const PacketInfo *info) {
 /* 计数器表：把"某个 key 出现了几次"记下来。
  * 用最简单的做法：一个小数组 + 线性查找。数据量小的时候足够快，
  * 以后数据量大再换成哈希表（那是以后的事儿）。
- * 说明：表用了"全局变量"，所有函数都能直接读写——小程序图方便，
+ * 说明：表用了"全局变量"，所有函数都能直接读写，小程序图方便，
  * 等代码更大时更好的做法是当参数传来传去（放到"重构"话题里讲）。 */
 #define MAX_ENTRIES 128
 
@@ -379,7 +379,7 @@ static void stats_update(const PacketInfo *info, unsigned int full_len) {
     }
 }
 
-/* 输出统计报告。写去哪由 out 决定——屏幕（stdout）或报告文件都走这一份逻辑。
+/* 输出统计报告。写去哪由 out 决定，屏幕（stdout）或报告文件都走这一份逻辑。
  * 注意 "100.0 *" 里的 .0：如果写成 100 * bytes / total，C 语言会做"整数除法"，
  * 小数部分全被丢掉（比如 0.479 会变成 0）；写成 100.0 就会变成小数运算。 */
 static void emit_stats(FILE *out, unsigned long long total_bytes) {
@@ -421,7 +421,7 @@ static void emit_stats(FILE *out, unsigned long long total_bytes) {
 }
 
 /* v0.6：把这次分析的结果写成一份文本报告。
- * fopen 的 "w" 表示"写文件"（没有就新建、有就覆盖）——和 printf 全家桶
+ * fopen 的 "w" 表示"写文件"（没有就新建、有就覆盖），和 printf 全家桶
  * 是一个用法，只是"往哪写"从屏幕换成了文件；打开的东西用完必须 fclose。 */
 static void write_report(const char *path) {
     FILE *f = fopen(path, "w");
@@ -537,7 +537,7 @@ static void handle_packet(const struct pcap_pkthdr *header, const unsigned char 
     if (ok && filter_match(&info)) {
         /* 只有"通过过滤"的包才打印。header->ts 是时间戳：
          * tv_sec 是"秒"，tv_usec 是"微秒"。编号用的是"读入的序号"，
-         * 所以有过滤时编号会跳号——这正是过滤在起作用。 */
+         * 所以有过滤时编号会跳号，这正是过滤在起作用。 */
         printf("#%lld  时间=%lu.%06lu  长度=%u\n",
                total,
                (unsigned long)header->ts.tv_sec,
@@ -655,7 +655,7 @@ int main(int argc, char *argv[]) {
 
         /* pcap_datalink：返回这个文件的"链路层协议类型"。
          * 简单说，就是告诉大家这是以太网(Ethernet)还是别的。
-         * v0.1 里先把它存着；v0.2 起它派上用场——用来提醒"这个文件不是以太网格式的话，
+         * v0.1 里先把它存着；v0.2 起它派上用场，用来提醒"这个文件不是以太网格式的话，
          * 解析结果可能不准"。DLT_EN10MB 是 libpcap 定义的"以太网"常量（值为 1）。 */
         int linktype = pcap_datalink(handle);
         if (linktype != DLT_EN10MB) {

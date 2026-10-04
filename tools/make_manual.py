@@ -107,7 +107,7 @@ def main():
     others.build_license_readme(h1, h2, para, bullet, code, note)
 
     out = os.path.join(ROOT, 'docs', 'packetlens逐行手册.docx')
-    save(out)
+    save(out, title='PacketLens 逐行手册', created='2026-10-03 20:33')
 
 
 if __name__ == '__main__':

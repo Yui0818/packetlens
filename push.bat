@@ -1,6 +1,6 @@
 @echo off
 REM ============================================================
-REM  packetlens 一键备份脚本 —— 双击运行即可
+REM  packetlens 一键备份脚本，双击运行即可
 REM  作用：把当前项目所有改动提交(commit)并推送到 GitHub
 REM  GitHub 就是最可靠的云端备份，改完代码双击它=完成备份
 REM ============================================================
@@ -27,7 +27,7 @@ if "%MSG%"=="" (
     set MSG=update %date% %time%
 )
 
-REM 4. 用你的身份提交（不含任何 AI 署名）
+REM 4. 提交这次改动
 git -c user.name="Yui0818" -c user.email="324952380+Yui0818@users.noreply.github.com" commit -m "%MSG%"
 if errorlevel 1 (
     echo.

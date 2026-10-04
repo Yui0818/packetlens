@@ -37,4 +37,4 @@ import pp_appendix2  # 附录 E~F  练习 25 题 + 面试 25 问
 
 if __name__ == '__main__':
     out = os.path.abspath(os.path.join(HERE, '..', 'docs', 'packetlens完全教程.docx'))
-    docbuild.save(out)
+    docbuild.save(out, title='PacketLens 完全教程', created='2026-09-30 21:28')
