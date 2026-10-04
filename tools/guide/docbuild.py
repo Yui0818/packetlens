@@ -1,13 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-docbuild —— 项目文档的排版工具箱（统一风格版）
-================================================
-三份文档（学习笔记 / 完全教程 / 逐行手册）共用的一身「排版衣服」：
-统一的字体、标题样式、代码底色、行距、页边距和页码。
+docbuild —— 项目文档的排版工具箱
+=================================
+三份文档（学习笔记 / 完全教程 / 逐行手册）共用同一套写字函数：
+h1 / h2 / h3 / para / code / bullet / note / qa，最后 save()。
 
-用法：调用 h1 / h2 / h3 / para / code / bullet / note / qa 往文档写字，
-最后 save() 保存。想换风格，改最上面那组常量即可。
+共用的是「怎么写字」，不是「长什么样」——三份文档各调各的
+configure()，配色、字号、封面和页脚都留着自己的一份，所以看起来
+是一套手艺做出来的三本，不是同一个模板套了三遍。
+
+用法：
+    import docbuild
+    docbuild.configure(h1='1B4D3E', body_size=10.5, ...)   # 写字之前调
+    ... 写内容 ...
+    docbuild.save('...docx', title='...', created='2026-09-30 21:28')
 """
 
 from datetime import datetime
@@ -20,15 +27,39 @@ from docx.oxml import OxmlElement
 
 AUTHOR = '刘梓涵'                     # 文档属性里的作者
 
-# ---------- 统一配色与字体（想换风格就改这里） ----------
+# ---------- 字体（三份共用） ----------
 BODY_FONT = 'Microsoft YaHei'        # 正文字体（Windows 自带，显示稳定）
-BODY_SIZE = 10.5                     # 正文字号（首行缩进按它折算）
 CODE_FONT = 'Consolas'               # 代码字体（等宽）；中文部分自动用正文字体兜底
-C_H1 = RGBColor(0x1B, 0x3A, 0x5C)    # 一级标题：深藏青
-C_H2 = RGBColor(0x2A, 0x5A, 0x84)    # 二级标题：蓝
-C_H3 = RGBColor(0x3D, 0x5A, 0x73)    # 三级标题：灰蓝
 C_GRAY = RGBColor(0x6B, 0x6B, 0x6B)  # 备注用的灰色
 CODE_BG = 'F4F6F8'                   # 代码块底色（很淡的灰蓝）
+
+# ---------- 外观：每份文档自己 configure() 覆盖 ----------
+_theme = {
+    'h1': '1B3A5C',      # 一级标题颜色（十六进制，不带 #）
+    'h2': '2A5A84',
+    'h3': '3D5A73',
+    'body_size': 10.5,   # 正文字号（首行缩进的 2 字符按它折算）
+    'line_spacing': 1.4,
+    'title_size': 34,    # 封面大标题
+    'cover_top': 6,      # 封面标题上方空几行
+    'cover_mid': 5,      # 副标题与作者信息之间空几行
+    'footer': 'plain',   # 页脚：plain=只印页码，cn=「第 N 页」，dash=「— N —」
+}
+
+def configure(**kw):
+    """换一套外观。必须在往文档里写任何内容之前调用。"""
+    unknown = set(kw) - set(_theme)
+    if unknown:
+        raise ValueError('configure() 不认识这些参数：%s' % ', '.join(sorted(unknown)))
+    _theme.update(kw)
+    _setup_page()
+    _setup_styles()
+
+
+def _rgb(key):
+    h = _theme[key]
+    return RGBColor(int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16))
+
 
 doc = Document()
 
@@ -63,7 +94,7 @@ def _indent_first_line(paragraph, chars=2):
     免得 WPS / LibreOffice 这类不认 Chars 的软件当没看见。
     """
     pf = paragraph.paragraph_format
-    pf.first_line_indent = Pt(BODY_SIZE * chars)
+    pf.first_line_indent = Pt(_theme['body_size'] * chars)
     ind = paragraph._p.get_or_add_pPr().find(qn('w:ind'))
     if ind is not None:
         ind.set(qn('w:firstLineChars'), str(int(chars * 100)))
@@ -79,44 +110,64 @@ def _shade(paragraph, fill):
     pPr.append(shd)
 
 
+def _page_field():
+    """返回一段「页码域」的 XML 片段（PAGE 那三个 fldChar）。"""
+    f1 = OxmlElement('w:fldChar'); f1.set(qn('w:fldCharType'), 'begin')
+    f2 = OxmlElement('w:instrText'); f2.set(qn('xml:space'), 'preserve'); f2.text = 'PAGE'
+    f3 = OxmlElement('w:fldChar'); f3.set(qn('w:fldCharType'), 'end')
+    return f1, f2, f3
+
+
 def _setup_page():
-    """A4 纸 + 舒适页边距 + 页脚页码。"""
+    """A4 纸 + 舒适页边距 + 页脚页码（页脚样式由 theme['footer'] 决定）。"""
     sec = doc.sections[0]
     sec.page_width, sec.page_height = Cm(21.0), Cm(29.7)
     sec.top_margin = sec.bottom_margin = Cm(2.3)
     sec.left_margin = sec.right_margin = Cm(2.4)
 
     p = sec.footer.paragraphs[0]
+    for r in list(p.runs):          # configure() 可能被调多次，先清干净
+        r._element.getparent().remove(r._element)
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    style = _theme['footer']
+    if style == 'cn':
+        p.add_run('第 ')
+    elif style == 'dash':
+        p.add_run('— ')
     run = p.add_run()
-    f1 = OxmlElement('w:fldChar'); f1.set(qn('w:fldCharType'), 'begin')
-    f2 = OxmlElement('w:instrText'); f2.set(qn('xml:space'), 'preserve'); f2.text = 'PAGE'
-    f3 = OxmlElement('w:fldChar'); f3.set(qn('w:fldCharType'), 'end')
-    run._r.append(f1); run._r.append(f2); run._r.append(f3)
-    run.font.size = Pt(9)
-    run.font.color.rgb = C_GRAY
+    for f in _page_field():
+        run._r.append(f)
+    if style == 'cn':
+        p.add_run(' 页')
+    elif style == 'dash':
+        p.add_run(' —')
+    for r in p.runs:
+        r.font.size = Pt(9)
+        r.font.color.rgb = C_GRAY
+        _run_cjk(r)
 
 
 def _setup_styles():
     """全局样式：正文、各级标题、列表的字体与间距。"""
     normal = doc.styles['Normal']
     _style_font(normal, BODY_FONT)
-    normal.font.size = Pt(BODY_SIZE)
+    normal.font.size = Pt(_theme['body_size'])
     normal.font.color.rgb = RGBColor(0x22, 0x22, 0x22)
-    normal.paragraph_format.line_spacing = 1.4
+    normal.paragraph_format.line_spacing = _theme['line_spacing']
     # 中文排版习惯：段与段之间不留空行（靠首行缩进分段），所以段后间距为 0
     normal.paragraph_format.space_after = Pt(0)
     normal.paragraph_format.space_before = Pt(0)
 
-    for name, size, color in [('Heading 1', 19, C_H1),
-                              ('Heading 2', 14, C_H2),
-                              ('Heading 3', 12, C_H3)]:
+    for name, size, key in [('Heading 1', 19, 'h1'),
+                            ('Heading 2', 14, 'h2'),
+                            ('Heading 3', 12, 'h3')]:
         st = doc.styles[name]
         _style_font(st, BODY_FONT)
         st.font.size = Pt(size)
         st.font.bold = True
         st.font.italic = False
-        st.font.color.rgb = color
+        st.font.color.rgb = _rgb(key)
         st.paragraph_format.space_before = Pt(12 if name == 'Heading 2' else 10)
         st.paragraph_format.space_after = Pt(5)
         st.paragraph_format.line_spacing = 1.2
@@ -124,10 +175,10 @@ def _setup_styles():
     # 封面大标题用的 Title 样式
     st = doc.styles['Title']
     _style_font(st, BODY_FONT)
-    st.font.size = Pt(30)
+    st.font.size = Pt(_theme['title_size'])
     st.font.bold = True
     st.font.italic = False
-    st.font.color.rgb = C_H1
+    st.font.color.rgb = _rgb('h1')
 
     lb = doc.styles['List Bullet']
     lb.paragraph_format.line_spacing = 1.35
@@ -140,20 +191,20 @@ _setup_styles()
 
 def cover(title, subtitle, meta):
     """封面页：大标题 + 副标题 + 说明（全部居中）。"""
-    for _ in range(6):
+    for _ in range(_theme['cover_top']):
         doc.add_paragraph()
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     r = p.add_run(title)
     r.bold = True
-    r.font.size = Pt(34)
-    r.font.color.rgb = C_H1
+    r.font.size = Pt(_theme['title_size'])
+    r.font.color.rgb = _rgb('h1')
     p2 = doc.add_paragraph()
     p2.alignment = WD_ALIGN_PARAGRAPH.CENTER
     r2 = p2.add_run(subtitle)
     r2.font.size = Pt(14)
-    r2.font.color.rgb = C_H2
-    for _ in range(5):
+    r2.font.color.rgb = _rgb('h2')
+    for _ in range(_theme['cover_mid']):
         doc.add_paragraph()
     p3 = doc.add_paragraph()
     p3.alignment = WD_ALIGN_PARAGRAPH.CENTER

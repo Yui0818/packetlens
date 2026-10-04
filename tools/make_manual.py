@@ -26,6 +26,13 @@ sys.path.insert(0, os.path.join(HERE, 'guide'))    # 复用完全教程的排版
 sys.path.insert(0, os.path.join(HERE, 'manual'))
 
 import docbuild
+
+# 逐行手册的样子：石墨灰标题、字小一号、行距收紧（手册密，要塞得下）、
+# 页码两头加短横
+docbuild.configure(h1='262626', h2='4A4A4A', h3='6B6B6B',
+                   body_size=10, line_spacing=1.35,
+                   cover_top=5, cover_mid=6, footer='dash', title_size=30)
+
 from docbuild import cover, h1, h2, h3, para, bullet, code, note, qa, save
 
 # 各部分的内容模块

@@ -18,6 +18,11 @@ sys.path.insert(0, os.path.join(HERE, 'guide'))
 
 # 导入顺序 = 文档里章节的顺序
 import docbuild
+
+# 完全教程的样子：墨绿标题、封面留白多一点、页码写成「第 N 页」
+docbuild.configure(h1='1B4D3E', h2='2C7059', h3='46756A',
+                   cover_top=7, cover_mid=4, footer='cn', title_size=32)
+
 import pa_front      # 封面 · 前言
 import pb_basics     # 第 1 章  电脑与编程的最基础概念
 import pc_network    # 第 2 章  网络基础

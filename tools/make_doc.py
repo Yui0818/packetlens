@@ -16,7 +16,9 @@
 import os
 import sys
 
-# 和《完全教程》《逐行手册》共用同一套排版工具箱
+# 和《完全教程》《逐行手册》共用同一套排版工具箱。
+# 这本是最早做的，外观就用工具箱的默认值（藏青标题、页脚只印页码、
+# 封面自己排），后两本才各自 configure() 调过颜色和字号。
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'guide'))
 from docbuild import *   # noqa: F401,F403  （doc / h1 / h2 / h3 / para / code / bullet / note / save）
 
